@@ -1,0 +1,1045 @@
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة وضاح - سارق الدجاج والبطيخ</title>
+    <link href="https://cdn.jsdelivr.net/npm/fontsource-tajawal@5.0.13/400.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fontsource-tajawal@5.0.13/700.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: #0a0a0a;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        #gameContainer { position: relative; width: 100vw; height: 100vh; }
+        canvas { display: block; width: 100%; height: 100%; }
+        #startScreen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1a0a2e, #16213e, #0f3460);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 100; transition: opacity 0.5s;
+        }
+        #startScreen h1 { font-size: 3.5em; color: #FFD700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 4px 8px rgba(0,0,0,0.5); margin-bottom: 10px; animation: pulse 2s infinite; }
+        #startScreen h2 { font-size: 1.5em; color: #e94560; margin-bottom: 25px; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .start-btn {
+            padding: 18px 50px; font-size: 1.6em; font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(45deg, #e94560, #FFD700); color: white;
+            border: none; border-radius: 50px; cursor: pointer; transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4);
+        }
+        .start-btn:hover { transform: scale(1.08); box-shadow: 0 12px 35px rgba(233, 69, 96, 0.6); }
+        .instructions {
+            color: #ccc; font-size: 0.95em; margin-top: 20px; text-align: center;
+            line-height: 1.8; max-width: 550px; padding: 0 15px;
+        }
+        .instructions span { color: #FFD700; font-weight: bold; }
+        #jailScreen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.88);
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 90;
+        }
+        #jailScreen h1 { font-size: 2.5em; color: #ff4444; text-shadow: 0 0 20px rgba(255, 68, 68, 0.5); margin-bottom: 15px; }
+        #jailScreen p { color: #fff; font-size: 1.3em; margin-bottom: 10px; text-align: center; padding: 0 10px; }
+        .mash-btn {
+            padding: 15px 40px; font-size: 1.3em; font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(45deg, #ff4444, #ff8800); color: white;
+            border: none; border-radius: 50px; cursor: pointer; transition: all 0.2s; margin: 10px;
+        }
+        .mash-btn:hover { transform: scale(1.05); }
+        .mash-btn:active { transform: scale(0.95); }
+        #progressBar { width: 280px; height: 25px; background: #333; border-radius: 15px; margin-top: 12px; overflow: hidden; max-width: 90%; }
+        #progressFill { width: 0%; height: 100%; background: linear-gradient(90deg, #ff4444, #FFD700); border-radius: 15px; transition: width 0.1s; }
+        #winScreen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 95; background: linear-gradient(135deg, #1a0a2e, #0f3460, #16213e);
+        }
+        #hud {
+            position: absolute; top: 12px; right: 10px; left: 10px;
+            display: none; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px;
+            z-index: 50; pointer-events: none;
+        }
+        .hud-item {
+            background: rgba(0,0,0,0.75); padding: 6px 15px; border-radius: 25px;
+            color: white; font-size: 0.95em; backdrop-filter: blur(5px);
+            border: 2px solid rgba(255,255,255,0.15); white-space: nowrap;
+        }
+        .hud-item.chicken { border-color: #FFD700; color: #FFD700; }
+        .hud-item.watermelon { border-color: #4CAF50; color: #4CAF50; }
+        .hud-item.score { border-color: #e94560; color: #e94560; }
+        #mobileControls { position: absolute; bottom: 20px; left: 20px; z-index: 60; display: none; }
+        .dpad { display: grid; grid-template-columns: 60px 60px 60px; grid-template-rows: 60px 60px 60px; gap: 5px; }
+        .dpad-btn {
+            background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px; color: white; font-size: 1.5em; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .dpad-btn:active { background: rgba(255,255,255,0.4); }
+        .dpad-up { grid-column: 2; grid-row: 1; }
+        .dpad-left { grid-column: 1; grid-row: 2; }
+        .dpad-right { grid-column: 3; grid-row: 2; }
+        .dpad-down { grid-column: 2; grid-row: 3; }
+        #alertBanner {
+            position: absolute; top: 55px; left: 50%; transform: translateX(-50%);
+            background: rgba(233, 69, 96, 0.92); color: white; padding: 8px 20px;
+            border-radius: 25px; font-size: 1.1em; z-index: 50; display: none;
+            text-align: center; max-width: 90%; animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 55px; opacity: 1; } }
+        @media (max-width: 768px) {
+            #startScreen h1 { font-size: 2.5em; }
+            #startScreen h2 { font-size: 1.2em; }
+            .instructions { font-size: 0.85em; }
+            .hud-item { font-size: 0.8em; padding: 5px 10px; }
+            #mobileControls { display: grid; }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div id="startScreen">
+            <h1>🐔 لعبة وضاح 🍉</h1>
+            <h2>سارق الدجاج والبطيخ</h2>
+            <button class="start-btn" onclick="startGame()">🎮 ابدأ اللعبة</button>
+            <div class="instructions">
+                <span>🎯 الهدف:</span> اسرق الدجاج والبطيخ ووصل لمنطقة الفوز!<br>
+                <span>⌨️ التحكم:</span> أسهم أو WASD أو أزرار الشاشة على الجوال<br>
+                <span>👮‍♂️ احذر:</span> سهيل وامجد يطاردونك!<br>
+                <span>🔒 السجن:</span> انمسكت؟ اضغط بسرعة للهروب!<br>
+                <span>🍉 البطيخ:</span> نادر ويساوي نقاط أكثر!<br>
+                <span>🏆 الفوز:</span> اجمع 8 دجاجات أو 3 بطيخات وروح للفوز<br><br>
+                <span>🔊 ملاحظة:</span> ضع ملفات الصوت في نفس مجلد ملف الـ HTML
+            </div>
+        </div>
+        <div id="jailScreen">
+            <h1>🔒 تم القبض عليك!</h1>
+            <p>صالح حارس السجن ما يبيك تهرب!</p>
+            <p>اضغط على الزر بأسرع ما يمكن أو اضغط أي زر!</p>
+            <button class="mash-btn" id="mashBtn">🔓 اضغط للهروب!</button>
+            <div id="progressBar"><div id="progressFill"></div></div>
+            <p id="mashCount" style="margin-top:8px;">0 / 20</p>
+        </div>
+        <div id="winScreen"><canvas id="winCanvas"></canvas></div>
+        <div id="hud">
+            <div class="hud-item chicken" id="chickenCount">🐔 0</div>
+            <div class="hud-item watermelon" id="watermelonCount">🍉 0</div>
+            <div class="hud-item score" id="scoreDisplay">⭐ 0</div>
+        </div>
+        <div id="alertBanner"></div>
+        <div id="mobileControls">
+            <div class="dpad">
+                <button class="dpad-btn dpad-up">⬆</button>
+                <button class="dpad-btn dpad-left">⬅</button>
+                <button class="dpad-btn dpad-right">➡</button>
+                <button class="dpad-btn dpad-down">⬇</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const winCanvasEl = document.getElementById('winCanvas');
+        const winCtx = winCanvasEl.getContext('2d');
+
+        let W, H;
+        function resize() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+            winCanvasEl.width = W;
+            winCanvasEl.height = H;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const charImages = {};
+        const imageUrls = {
+            player: 'https://i.imgur.com/d99lgoS.png',
+            police1: 'https://i.imgur.com/WEDvGXY.png',
+            police2: 'https://i.imgur.com/xwBeagD.png',
+            guard: 'https://i.imgur.com/KqCmdm5.png',
+            cheer1: 'https://i.imgur.com/92mH0Cb.png',
+            cheer2: 'https://i.imgur.com/7fvfBfK.png',
+            cheer3: 'https://i.ibb.co/Ndj2Kgtr/95cb241HoecwsFtSMfrZtMjSK8Jmc9G7DP2EgJu8.png',
+            cheer4: 'https://i.ibb.co/b5j6vvzz/Untitled-kanye-LE-upscale-prime.png',
+            cheer5: 'https://i.ibb.co/RGfJkRJb/images-LE-upscale-prime.png',
+            cheer6: 'https://i.ibb.co/JjpWc8FX/Untitled-black-people-LE-upscale-prime.png'
+        };
+        for (const [key, url] of Object.entries(imageUrls)) {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = url;
+            charImages[key] = img;
+        }
+
+        // ====== الأصوات: نفس المجلد مع ملف الموقع ======
+        const winSoundFiles = [
+            "Voicy_i hate ni- repost btw.mp3",
+            "Voicy_Loud neck hurts .mp3",
+            "Voicy_nigga nigger.mp3",
+            "Voicy_nigger.mp3",
+            "Voicy_Spongbob nigger.mp3",
+            "ngngngng-made-with-Voicemod.mp3",
+            "Voicy_10 seconds marsh.mp3",
+            "Voicy_Epic sound.mp3"
+        ];
+
+        const winAudioElements = [];
+        winSoundFiles.forEach((fileName) => {
+            const audio = new Audio(fileName);
+            audio.preload = "auto";
+            audio.volume = 1.0;
+            audio.loop = true;
+            audio.onerror = () => {
+                console.warn('ماقدر يحمل الصوت:', fileName, '- تأكد إنه بنفس مجلد الموقع');
+            };
+            winAudioElements.push(audio);
+        });
+
+        let gameState = 'start';
+        let mashCount = 0;
+        const mashNeeded = 20;
+        let playerJailRespawnTimer = 0;
+        let hasPlayedWinSounds = false;
+        let soundsAreLooping = false;
+
+        const playerObj = {
+            x: 0, y: 0, w: 50, h: 50, speed: 4.5,
+            chickens: 0, watermelons: 0, score: 0,
+            facing: 'down', frame: 0, invincible: false
+        };
+
+        const policeArr = [
+            { x: 0, y: 0, w: 45, h: 45, speed: 2.0, name: 'سهيل', img: 'police1' },
+            { x: 0, y: 0, w: 45, h: 45, speed: 2.3, name: 'امجد', img: 'police2' }
+        ];
+
+        let items = [];
+        let canEnterWin = false;
+
+        const keys = {};
+        window.addEventListener('keydown', e => {
+            keys[e.key] = true;
+            if (gameState === 'jailed') mashEscape();
+        });
+        window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+        const mobileDir = { up: false, down: false, left: false, right: false };
+        const dPadButtons = document.querySelectorAll('.dpad-btn');
+        dPadButtons.forEach(btn => {
+            const dir = btn.classList.contains('dpad-up') ? 'up' :
+                        btn.classList.contains('dpad-down') ? 'down' :
+                        btn.classList.contains('dpad-left') ? 'left' : 'right';
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); mobileDir[dir] = true; });
+            btn.addEventListener('touchend', (e) => { e.preventDefault(); mobileDir[dir] = false; });
+            btn.addEventListener('mousedown', () => { mobileDir[dir] = true; });
+            btn.addEventListener('mouseup', () => { mobileDir[dir] = false; });
+            btn.addEventListener('mouseleave', () => { mobileDir[dir] = false; });
+        });
+
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+            document.getElementById('mobileControls').style.display = 'block';
+        }
+
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSynthSound(type) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+
+            switch(type) {
+                case 'chicken':
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(900, now);
+                    osc.frequency.exponentialRampToValueAtTime(400, now + 0.12);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now); osc.stop(now + 0.15);
+                    const o2 = audioCtx.createOscillator();
+                    const g2 = audioCtx.createGain();
+                    o2.connect(g2); g2.connect(audioCtx.destination);
+                    o2.type = 'square';
+                    o2.frequency.setValueAtTime(800, now + 0.15);
+                    o2.frequency.exponentialRampToValueAtTime(500, now + 0.25);
+                    g2.gain.setValueAtTime(0.2, now + 0.15);
+                    g2.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
+                    o2.start(now + 0.15); o2.stop(now + 0.28);
+                    break;
+                case 'watermelon':
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(500, now);
+                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.3);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now); osc.stop(now + 0.4);
+                    break;
+                case 'caught':
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.6);
+                    gain.gain.setValueAtTime(0.35, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                    osc.start(now); osc.stop(now + 0.6);
+                    break;
+                case 'escape':
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(500, now);
+                    osc.frequency.exponentialRampToValueAtTime(900, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+                    osc.start(now); osc.stop(now + 0.18);
+                    break;
+                case 'alert':
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(700, now);
+                    osc.frequency.setValueAtTime(900, now + 0.08);
+                    osc.frequency.setValueAtTime(700, now + 0.16);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now); osc.stop(now + 0.25);
+                    break;
+            }
+        }
+
+        // ====== تشغيل كل أصوات الفوز - تشتغل بشكل مستمر ======
+        function startWinSoundsLoop() {
+            if (soundsAreLooping) return;
+            soundsAreLooping = true;
+            hasPlayedWinSounds = true;
+            winAudioElements.forEach(audio => {
+                audio.currentTime = 0;
+                audio.loop = true;
+                audio.play().catch(err => {
+                    console.warn('خطأ تشغيل الصوت:', err);
+                });
+            });
+        }
+
+        function stopWinSoundsLoop() {
+            soundsAreLooping = false;
+            winAudioElements.forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
+        }
+
+        function showAlert(text, duration = 2500) {
+            const banner = document.getElementById('alertBanner');
+            banner.textContent = text;
+            banner.style.display = 'block';
+            clearTimeout(banner._timer);
+            banner._timer = setTimeout(() => { banner.style.display = 'none'; }, duration);
+        }
+
+        function spawnItems() {
+            items = [];
+            const margin = 80;
+            for (let i = 0; i < 12; i++) {
+                items.push({
+                    x: margin + Math.random() * (W - margin * 2),
+                    y: margin + Math.random() * (H - margin * 2),
+                    type: 'chicken', w: 38, h: 38, collected: false,
+                    bobOffset: Math.random() * Math.PI * 2
+                });
+            }
+            for (let i = 0; i < 4; i++) {
+                items.push({
+                    x: margin + Math.random() * (W - margin * 2),
+                    y: margin + Math.random() * (H - margin * 2),
+                    type: 'watermelon', w: 38, h: 38, collected: false,
+                    bobOffset: Math.random() * Math.PI * 2
+                });
+            }
+        }
+
+        function setupPositions() {
+            playerObj.x = W / 2 - playerObj.w / 2;
+            playerObj.y = H - 120;
+            playerObj.invincible = false;
+
+            policeArr[0].x = 80;
+            policeArr[0].y = 80;
+            policeArr[1].x = W - 125;
+            policeArr[1].y = 80;
+
+            window._WIN_ZONE = { x: W / 2 - 90, y: 25, w: 180, h: 75 };
+            window._JAIL_ZONE = { x: W - 170, y: H - 160, w: 140, h: 130 };
+
+            spawnItems();
+        }
+
+        function collides(a, b) {
+            return a.x < b.x + b.w && a.x + a.w > b.x &&
+                   a.y < b.y + b.h && a.y + a.h > b.y;
+        }
+
+        function startGame() {
+            initAudio();
+            stopWinSoundsLoop();
+            document.getElementById('startScreen').style.opacity = '0';
+            setTimeout(() => { document.getElementById('startScreen').style.display = 'none'; }, 500);
+            document.getElementById('hud').style.display = 'flex';
+            document.getElementById('winScreen').style.display = 'none';
+            gameState = 'playing';
+            setupPositions();
+            playerObj.chickens = 0;
+            playerObj.watermelons = 0;
+            playerObj.score = 0;
+            canEnterWin = false;
+            hasPlayedWinSounds = false;
+            mashCount = 0;
+            updateHUD();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateHUD() {
+            document.getElementById('chickenCount').textContent = `🐔 ${playerObj.chickens}`;
+            document.getElementById('watermelonCount').textContent = `🍉 ${playerObj.watermelons}`;
+            document.getElementById('scoreDisplay').textContent = `⭐ ${playerObj.score}`;
+        }
+
+        function mashEscape() {
+            if (gameState !== 'jailed') return;
+            mashCount++;
+            playSynthSound('escape');
+            document.getElementById('progressFill').style.width = `${(mashCount / mashNeeded) * 100}%`;
+            document.getElementById('mashCount').textContent = `${mashCount} / ${mashNeeded}`;
+            if (mashCount >= mashNeeded) escapeJail();
+        }
+
+        function escapeJail() {
+            gameState = 'playing';
+            document.getElementById('jailScreen').style.display = 'none';
+
+            playerObj.x = window._JAIL_ZONE.x - 100;
+            playerObj.y = window._JAIL_ZONE.y + window._JAIL_ZONE.h / 2 - playerObj.h / 2;
+
+            policeArr.forEach((cop, idx) => {
+                cop.x = idx === 0 ? 60 : W - 105;
+                cop.y = 120 + idx * 80;
+            });
+
+            mashCount = 0;
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('mashCount').textContent = `0 / ${mashNeeded}`;
+
+            playerObj.invincible = true;
+            playerJailRespawnTimer = 2000;
+
+            showAlert('🔓 هربت من السجن! عندك حماية 2 ثانية');
+            playSynthSound('alert');
+        }
+
+        let confettiPieces = [];
+        function createConfetti() {
+            confettiPieces = [];
+            for (let i = 0; i < 120; i++) {
+                confettiPieces.push({
+                    x: Math.random() * W, y: Math.random() * -H,
+                    w: Math.random() * 10 + 5, h: Math.random() * 10 + 5,
+                    color: ['#FFD700', '#e94560', '#4CAF50', '#2196F3', '#FF9800', '#9C27B0'][Math.floor(Math.random() * 6)],
+                    speedY: Math.random() * 4 + 2, speedX: Math.random() * 4 - 2,
+                    rotation: Math.random() * 360, rotSpeed: Math.random() * 10 - 5
+                });
+            }
+        }
+
+        function triggerWin() {
+            gameState = 'won';
+            document.getElementById('hud').style.display = 'none';
+            document.getElementById('winScreen').style.display = 'flex';
+            createConfetti();
+            
+            // تشغيل الأصوات بشكل مستمر - ما توقف إلا لما اللاعب يضغط العب مرة ثانية
+            startWinSoundsLoop();
+            
+            requestAnimationFrame(animateWin);
+        }
+
+        function animateWin() {
+            if (gameState !== 'won') return;
+            const time = Date.now() / 1000;
+            winCtx.clearRect(0, 0, W, H);
+
+            const gradient = winCtx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W/1.5);
+            gradient.addColorStop(0, 'rgba(255, 215, 0, 0.15)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            winCtx.fillStyle = gradient;
+            winCtx.fillRect(0, 0, W, H);
+
+            confettiPieces.forEach(c => {
+                c.y += c.speedY; c.x += c.speedX; c.rotation += c.rotSpeed;
+                if (c.y > H + 20) { c.y = -20; c.x = Math.random() * W; }
+                if (c.x < 0) c.x = W; if (c.x > W) c.x = 0;
+                winCtx.save();
+                winCtx.translate(c.x, c.y);
+                winCtx.rotate(c.rotation * Math.PI / 180);
+                winCtx.fillStyle = c.color;
+                winCtx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
+                winCtx.restore();
+            });
+
+            winCtx.fillStyle = '#FFD700';
+            winCtx.font = 'bold 45px Tajawal';
+            winCtx.textAlign = 'center';
+            winCtx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+            winCtx.shadowBlur = 30;
+            winCtx.fillText('🏆 وضاح فاز! 🏆', W/2, 90);
+            winCtx.shadowBlur = 0;
+
+            winCtx.fillStyle = '#fff';
+            winCtx.font = 'bold 22px Tajawal';
+            winCtx.fillText(`الدجاج: ${playerObj.chickens} | البطيخ: ${playerObj.watermelons} | النقاط: ${playerObj.score}`, W/2, 130);
+
+            const px = W / 2, py = H / 2 + 50;
+            if (charImages.player.complete && charImages.player.naturalWidth) {
+                winCtx.drawImage(charImages.player, px - 45, py - 55, 90, 90);
+            }
+
+            const cheerImgs = ['cheer1', 'cheer2', 'cheer3', 'cheer4', 'cheer5', 'cheer6'];
+            const radius = Math.min(W, H) * 0.28;
+
+            cheerImgs.forEach((key, idx) => {
+                const img = charImages[key];
+                if (!img.complete || !img.naturalWidth) return;
+                const angle = (idx / cheerImgs.length) * Math.PI * 2 + time * 0.35;
+                const cx = W / 2 + Math.cos(angle) * radius;
+                const cy = H / 2 + Math.sin(angle) * radius * 0.45 + 40;
+                const bounce = Math.sin(time * 3 + idx) * 18;
+
+                winCtx.save();
+                winCtx.translate(cx, cy + bounce);
+                winCtx.rotate(Math.sin(time * 2 + idx) * 0.15);
+                winCtx.drawImage(img, -35, -35, 70, 70);
+                winCtx.fillStyle = '#FFD700';
+                winCtx.font = '18px serif';
+                winCtx.textAlign = 'center';
+                winCtx.fillText('🎉', 0, -40);
+                winCtx.restore();
+            });
+
+            const cheers = ['🎉 وااو!', '🐔 يا وحش!', '🍉 أسطووورة!', '💪 بطل!', '⭐ ضححححححح', '🏆 ملك!'];
+            const randomIdx = Math.floor(time * 2) % cheers.length;
+            const randomCharIdx = Math.floor(time * 1.5) % 6;
+            const ri = charImages[cheerImgs[randomCharIdx]];
+            if (ri.complete && ri.naturalWidth) {
+                const angle = (randomCharIdx / cheerImgs.length) * Math.PI * 2 + time * 0.35;
+                const cx = W / 2 + Math.cos(angle) * radius;
+                const cy = H / 2 + Math.sin(angle) * radius * 0.45 + 40;
+                const bounce = Math.sin(time * 3 + randomCharIdx) * 18;
+                winCtx.fillStyle = 'rgba(255,255,255,0.9)';
+                winCtx.beginPath();
+                winCtx.roundRect(cx - 50, cy + bounce - 80, 100, 28, 8);
+                winCtx.fill();
+                winCtx.fillStyle = '#333';
+                winCtx.font = 'bold 14px Tajawal';
+                winCtx.textAlign = 'center';
+                winCtx.fillText(cheers[randomIdx], cx, cy + bounce - 60);
+            }
+
+            if (charImages.guard.complete && charImages.guard.naturalWidth) {
+                winCtx.drawImage(charImages.guard, W - 95, H - 115, 75, 75);
+                winCtx.fillStyle = '#fff';
+                winCtx.font = 'bold 13px Tajawal';
+                winCtx.textAlign = 'center';
+                winCtx.fillText('صالح', W - 58, H - 30);
+            }
+
+            policeArr.forEach((p, idx) => {
+                const pi = charImages[p.img];
+                if (pi.complete && pi.naturalWidth) {
+                    winCtx.globalAlpha = 0.5;
+                    winCtx.drawImage(pi, 40 + idx * 75, H - 115, 65, 65);
+                    winCtx.globalAlpha = 1;
+                    winCtx.fillStyle = '#ff4444';
+                    winCtx.font = 'bold 13px Tajawal';
+                    winCtx.textAlign = 'center';
+                    winCtx.fillText('😢 ' + p.name, 72 + idx * 75, H - 30);
+                }
+            });
+
+            winCtx.fillStyle = 'rgba(233, 69, 96, 0.85)';
+            winCtx.beginPath();
+            winCtx.roundRect(W/2 - 90, H - 70, 180, 48, 24);
+            winCtx.fill();
+            winCtx.fillStyle = '#fff';
+            winCtx.font = 'bold 18px Tajawal';
+            winCtx.textAlign = 'center';
+            winCtx.fillText('🔄 العب مرة ثانية', W/2, H - 38);
+
+            requestAnimationFrame(animateWin);
+        }
+
+        winCanvasEl.addEventListener('click', (e) => {
+            if (gameState === 'won') {
+                gameState = 'start';
+                document.getElementById('winScreen').style.display = 'none';
+                document.getElementById('startScreen').style.display = 'flex';
+                setTimeout(() => { document.getElementById('startScreen').style.opacity = '1'; }, 10);
+                // إيقاف الأصوات لما يرجع للشاشة الرئيسية
+                stopWinSoundsLoop();
+            }
+        });
+
+        let lastTime = 0;
+        function gameLoop(timestamp = 0) {
+            if (gameState !== 'playing' && gameState !== 'jailed') {
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            const dt = timestamp - lastTime;
+            lastTime = timestamp;
+
+            if (playerJailRespawnTimer > 0) {
+                playerJailRespawnTimer -= dt || 16;
+                if (playerJailRespawnTimer <= 0) playerObj.invincible = false;
+            }
+
+            ctx.clearRect(0, 0, W, H);
+            drawBackground();
+
+            const time = Date.now() / 1000;
+
+            if (gameState === 'playing') {
+                let dx = 0, dy = 0;
+                if (keys['ArrowUp'] || keys['w'] || keys['W'] || mobileDir.up) dy = -1;
+                if (keys['ArrowDown'] || keys['s'] || keys['S'] || mobileDir.down) dy = 1;
+                if (keys['ArrowLeft'] || keys['a'] || keys['A'] || mobileDir.left) { dx = -1; playerObj.facing = 'left'; }
+                if (keys['ArrowRight'] || keys['d'] || keys['D'] || mobileDir.right) { dx = 1; playerObj.facing = 'right'; }
+                if (dx !== 0 && dy !== 0) { dx *= 0.707; dy *= 0.707; }
+
+                playerObj.x += dx * playerObj.speed;
+                playerObj.y += dy * playerObj.speed;
+                playerObj.x = Math.max(0, Math.min(W - playerObj.w, playerObj.x));
+                playerObj.y = Math.max(0, Math.min(H - playerObj.h, playerObj.y));
+
+                if (dx !== 0 || dy !== 0) playerObj.frame += 0.15;
+
+                items.forEach(item => {
+                    if (item.collected) return;
+                    const bob = Math.sin(time * 2 + item.bobOffset) * 5;
+                    
+                    ctx.save();
+                    ctx.translate(item.x + item.w/2, item.y + item.h/2 + bob);
+                    ctx.rotate(Math.sin(time + item.bobOffset) * 0.1);
+
+                    if (item.type === 'chicken') {
+                        ctx.fillStyle = '#D2691E';
+                        ctx.beginPath();
+                        ctx.ellipse(0, 0, 16, 13, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#8B4513';
+                        ctx.beginPath();
+                        ctx.ellipse(-7, -5, 5, 7, -0.3, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#FFD700';
+                        ctx.font = '11px serif';
+                        ctx.fillText('✨', 10, -10);
+                    } else {
+                        ctx.fillStyle = '#2E7D32';
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 16, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#4CAF50';
+                        ctx.beginPath();
+                        ctx.arc(-2, -3, 9, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#F44336';
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 7, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#000';
+                        ctx.beginPath();
+                        ctx.arc(-1, -1, 1.5, 0, Math.PI * 2);
+                        ctx.arc(3, 1, 1.5, 0, Math.PI * 2);
+                        ctx.arc(0, 3, 1.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.globalAlpha = 0.3 + Math.sin(time * 3 + item.bobOffset) * 0.15;
+                    ctx.fillStyle = item.type === 'chicken' ? '#FFD700' : '#4CAF50';
+                    ctx.beginPath();
+                    ctx.arc(item.x + item.w/2, item.y + item.h/2 + bob, 22, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+
+                    if (collides(playerObj, item)) {
+                        item.collected = true;
+                        if (item.type === 'chicken') {
+                            playerObj.chickens++; playerObj.score += 10;
+                            playSynthSound('chicken');
+                            showAlert('🐔 سرقت دجاجة بروستد! +10');
+                        } else {
+                            playerObj.watermelons++; playerObj.score += 50;
+                            playSynthSound('watermelon');
+                            showAlert('🍉 بطيخ نادر!! +50');
+                        }
+                        updateHUD();
+
+                        if (playerObj.chickens >= 8 || playerObj.watermelons >= 3) {
+                            canEnterWin = true;
+                            showAlert('🏆 الحين تقدر تروح لمنطقة الفوز!', 3500);
+                        }
+
+                        setTimeout(() => {
+                            if (gameState === 'playing' || gameState === 'won') {
+                                item.collected = false;
+                                item.x = 80 + Math.random() * (W - 160);
+                                item.y = 80 + Math.random() * (H - 160);
+                            }
+                        }, item.type === 'watermelon' ? 12000 : 7000);
+                    }
+                });
+
+                drawJailZone(time);
+                drawWinZone(time);
+
+                policeArr.forEach(cop => {
+                    const targetX = playerObj.x - cop.w/2 + playerObj.w/4;
+                    const targetY = playerObj.y - cop.h/2 + playerObj.h/4;
+                    const cdx = targetX - cop.x;
+                    const cdy = targetY - cop.y;
+                    const dist = Math.sqrt(cdx * cdx + cdy * cdy) || 1;
+
+                    cop.x += (cdx / dist) * cop.speed;
+                    cop.y += (cdy / dist) * cop.speed;
+                    cop.x = Math.max(0, Math.min(W - cop.w, cop.x));
+                    cop.y = Math.max(0, Math.min(H - cop.h, cop.y));
+
+                    if (!playerObj.invincible && collides(playerObj, cop)) {
+                        gameState = 'jailed';
+                        playSynthSound('caught');
+                        showAlert(`👮‍♂️ ${cop.name} أمسكك!`);
+                        setTimeout(() => {
+                            document.getElementById('jailScreen').style.display = 'flex';
+                        }, 400);
+                    }
+                });
+
+                policeArr.forEach(cop => {
+                    ctx.save();
+                    ctx.globalAlpha = 0.3 + Math.sin(time * 6) * 0.2;
+                    ctx.fillStyle = '#ff0000';
+                    ctx.beginPath();
+                    ctx.arc(cop.x + cop.w/2 - 4, cop.y - 4, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 0.3 + Math.cos(time * 6) * 0.2;
+                    ctx.fillStyle = '#0044ff';
+                    ctx.beginPath();
+                    ctx.arc(cop.x + cop.w/2 + 6, cop.y - 4, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+
+                    const img = charImages[cop.img];
+                    if (img.complete && img.naturalWidth) {
+                        ctx.drawImage(img, cop.x, cop.y, cop.w, cop.h);
+                    } else {
+                        ctx.fillStyle = '#1565C0';
+                        ctx.fillRect(cop.x, cop.y, cop.w, cop.h);
+                        ctx.fillStyle = '#fff';
+                        ctx.font = '11px Tajawal';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(cop.name, cop.x + cop.w/2, cop.y + cop.h/2 + 4);
+                    }
+
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 11px Tajawal';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(cop.name, cop.x + cop.w/2, cop.y - 10);
+                });
+
+                if (canEnterWin && collides(playerObj, window._WIN_ZONE)) {
+                    triggerWin();
+                }
+            }
+
+            const pimg = charImages.player;
+            const bounce = Math.sin(playerObj.frame) * 3;
+            
+            ctx.save();
+            if (playerObj.invincible) {
+                ctx.globalAlpha = 0.5 + Math.sin(time * 10) * 0.3;
+            }
+            
+            if (pimg.complete && pimg.naturalWidth) {
+                ctx.drawImage(pimg, playerObj.x, playerObj.y + bounce, playerObj.w, playerObj.h);
+            } else {
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(playerObj.x + playerObj.w/2, playerObj.y + playerObj.h/2, playerObj.w/2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 11px Tajawal';
+                ctx.textAlign = 'center';
+                ctx.fillText('وضاح', playerObj.x + playerObj.w/2, playerObj.y + playerObj.h/2 + 4);
+            }
+            
+            if (playerObj.invincible) {
+                ctx.strokeStyle = '#4CAF50';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(playerObj.x + playerObj.w/2, playerObj.y + playerObj.h/2, playerObj.w/2 + 5, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            ctx.fillStyle = playerObj.invincible ? '#4CAF50' : '#FFD700';
+            ctx.font = 'bold 12px Tajawal';
+            ctx.textAlign = 'center';
+            ctx.fillText('وضاح', playerObj.x + playerObj.w/2, playerObj.y - 6);
+
+            if (canEnterWin && gameState === 'playing') {
+                const wz = window._WIN_ZONE;
+                const angle = Math.atan2(wz.y + wz.h/2 - playerObj.y, wz.x + wz.w/2 - playerObj.x);
+                const arrowX = playerObj.x + playerObj.w/2 + Math.cos(angle) * 45;
+                const arrowY = playerObj.y + playerObj.h/2 + Math.sin(angle) * 45;
+                ctx.save();
+                ctx.globalAlpha = 0.6 + Math.sin(time * 4) * 0.3;
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.moveTo(arrowX, arrowY - 7);
+                ctx.lineTo(arrowX + 9, arrowY);
+                ctx.lineTo(arrowX, arrowY + 7);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+
+            if (!canEnterWin) {
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.font = '11px Tajawal';
+                ctx.textAlign = 'center';
+                const needed = Math.max(0, 8 - playerObj.chickens);
+                const wmNeeded = Math.max(0, 3 - playerObj.watermelons);
+                ctx.fillText(`باقي ${needed} دجاجة أو ${wmNeeded} بطيخة لمنطقة الفوز`, W/2, H - 18);
+            }
+
+            drawMinimap(time);
+            requestAnimationFrame(gameLoop);
+        }
+
+        function drawBackground() {
+            ctx.fillStyle = '#2a2a2a';
+            ctx.fillRect(0, 0, W, H);
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < W; x += 50) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+            }
+            for (let y = 0; y < H; y += 50) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+            }
+
+            ctx.fillStyle = '#3a3a3a';
+            ctx.fillRect(W/2 - 28, 0, 56, H);
+            ctx.fillRect(0, H/2 - 28, W, 56);
+
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([18, 18]);
+            ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+            ctx.setLineDash([]);
+
+            const bldgs = [
+                { x: 25, y: 25, w: 90, h: 75, color: '#4a4a5a' },
+                { x: W - 115, y: 25, w: 90, h: 75, color: '#4a4a5a' },
+                { x: 25, y: H - 100, w: 90, h: 75, color: '#4a4a5a' },
+                { x: W - 280, y: H - 100, w: 90, h: 75, color: '#4a4a5a' },
+            ];
+            bldgs.forEach(b => {
+                ctx.fillStyle = b.color;
+                ctx.fillRect(b.x, b.y, b.w, b.h);
+                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(b.x, b.y, b.w, b.h);
+                ctx.fillStyle = 'rgba(255,255,200,0.25)';
+                for (let wx = b.x + 8; wx < b.x + b.w - 12; wx += 22) {
+                    for (let wy = b.y + 8; wy < b.y + b.h - 12; wy += 22) {
+                        ctx.fillRect(wx, wy, 10, 10);
+                    }
+                }
+            });
+        }
+
+        function drawJailZone(time) {
+            const jz = window._JAIL_ZONE;
+            ctx.save();
+            ctx.strokeStyle = '#ff4444';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([8, 4]);
+            ctx.strokeRect(jz.x, jz.y, jz.w, jz.h);
+            ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(255, 68, 68, 0.08)';
+            ctx.fillRect(jz.x, jz.y, jz.w, jz.h);
+
+            ctx.strokeStyle = '#888';
+            ctx.lineWidth = 2;
+            for (let bx = jz.x + 18; bx < jz.x + jz.w; bx += 22) {
+                ctx.beginPath(); ctx.moveTo(bx, jz.y); ctx.lineTo(bx, jz.y + jz.h); ctx.stroke();
+            }
+
+            ctx.fillStyle = '#ff4444';
+            ctx.font = 'bold 13px Tajawal';
+            ctx.textAlign = 'center';
+            ctx.fillText('🔒 السجن', jz.x + jz.w/2, jz.y - 4);
+
+            const guardImg = charImages.guard;
+            if (guardImg.complete && guardImg.naturalWidth) {
+                ctx.drawImage(guardImg, jz.x + jz.w/2 - 28, jz.y + jz.h/2 - 32, 56, 56);
+            }
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 10px Tajawal';
+            ctx.fillText('صالح', jz.x + jz.w/2, jz.y + jz.h + 14);
+            ctx.restore();
+
+            if (gameState === 'playing' && collides(playerObj, jz)) {
+                const cx = jz.x + jz.w/2;
+                const cy = jz.y + jz.h/2;
+                const pushX = playerObj.x - cx;
+                const pushY = playerObj.y - cy;
+                const pushDist = Math.sqrt(pushX*pushX + pushY*pushY) || 1;
+                playerObj.x += (pushX/pushDist) * 4;
+                playerObj.y += (pushY/pushDist) * 4;
+            }
+        }
+
+        function drawWinZone(time) {
+            const wz = window._WIN_ZONE;
+            ctx.save();
+
+            if (canEnterWin) {
+                const glowAlpha = 0.3 + Math.sin(time * 3) * 0.2;
+                ctx.fillStyle = `rgba(255, 215, 0, ${glowAlpha})`;
+                ctx.fillRect(wz.x, wz.y, wz.w, wz.h);
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([12, 8]);
+                ctx.strokeRect(wz.x, wz.y, wz.w, wz.h);
+                ctx.setLineDash([]);
+
+                for (let i = 0; i < 6; i++) {
+                    const px = wz.x + Math.random() * wz.w;
+                    const py = wz.y + Math.random() * wz.h;
+                    ctx.fillStyle = `rgba(255, 215, 0, ${0.3 + Math.random() * 0.4})`;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            } else {
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.15)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([8, 8]);
+                ctx.strokeRect(wz.x, wz.y, wz.w, wz.h);
+                ctx.setLineDash([]);
+            }
+
+            ctx.fillStyle = canEnterWin ? '#FFD700' : 'rgba(255,255,255,0.3)';
+            ctx.font = '22px serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('🏆', wz.x + wz.w/2, wz.y + wz.h/2 + 8);
+
+            ctx.fillStyle = canEnterWin ? '#FFD700' : 'rgba(255,255,255,0.3)';
+            ctx.font = `bold ${canEnterWin ? 15 : 12}px Tajawal`;
+            ctx.fillText(canEnterWin ? 'منطقة الفوز!' : 'منطقة الفوز', wz.x + wz.w/2, wz.y + wz.h + 20);
+            ctx.restore();
+        }
+
+        function drawMinimap(time) {
+            const mmW = 140, mmH = 140, mmX = 12, mmY = H - 155;
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(mmX, mmY, mmW, mmH, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            const pmx = mmX + (playerObj.x / W) * mmW;
+            const pmy = mmY + (playerObj.y / H) * mmH;
+            ctx.fillStyle = playerObj.invincible ? '#4CAF50' : '#FFD700';
+            ctx.beginPath();
+            ctx.arc(pmx, pmy, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            policeArr.forEach(cop => {
+                const cmx = mmX + (cop.x / W) * mmW;
+                const cmy = mmY + (cop.y / H) * mmH;
+                ctx.fillStyle = '#ff4444';
+                ctx.beginPath();
+                ctx.arc(cmx, cmy, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            items.forEach(item => {
+                if (item.collected) return;
+                const imx = mmX + (item.x / W) * mmW;
+                const imy = mmY + (item.y / H) * mmH;
+                ctx.fillStyle = item.type === 'chicken' ? '#D2691E' : '#4CAF50';
+                ctx.beginPath();
+                ctx.arc(imx, imy, 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            const wz = window._WIN_ZONE;
+            const wmx = mmX + (wz.x / W) * mmW;
+            const wmy = mmY + (wz.y / H) * mmH;
+            const wmw = (wz.w / W) * mmW;
+            const wmh = (wz.h / H) * mmH;
+            ctx.fillStyle = canEnterWin ? 'rgba(255, 215, 0, 0.4)' : 'rgba(255, 215, 0, 0.1)';
+            ctx.fillRect(wmx, wmy, wmw, wmh);
+
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.font = '10px Tajawal';
+            ctx.textAlign = 'center';
+            ctx.fillText('🗺️ الخريطة', mmX + mmW/2, mmY - 5);
+            ctx.restore();
+        }
+
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                if (typeof r === 'number') r = [r, r, r, r];
+                this.moveTo(x + r[0], y);
+                this.lineTo(x + w - r[1], y);
+                this.quadraticCurveTo(x + w, y, x + w, y + r[1]);
+                this.lineTo(x + w, y + h - r[2]);
+                this.quadraticCurveTo(x + w, y + h, x + w - r[2], y + h);
+                this.lineTo(x + r[3], y + h);
+                this.quadraticCurveTo(x, y + h, x, y + h - r[3]);
+                this.lineTo(x, y + r[0]);
+                this.quadraticCurveTo(x, y, x + r[0], y);
+                this.closePath();
+                return this;
+            };
+        }
+
+        document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+    </script>
+</body>
+</html>
