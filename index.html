@@ -1,10 +1,9 @@
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة وضاح - سارق الدجاج والبطيخ</title>
+    <title>لعبة وضاح - 67 مستوى</title>
     <link href="https://cdn.jsdelivr.net/npm/fontsource-tajawal@5.0.13/400.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/fontsource-tajawal@5.0.13/700.css" rel="stylesheet">
     <style>
@@ -12,159 +11,186 @@
         body {
             font-family: 'Tajawal', sans-serif;
             background: #0a0a0a;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-            touch-action: none;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
+            overflow: hidden; height: 100vh; width: 100vw;
+            touch-action: none; -webkit-touch-callout: none;
+            -webkit-user-select: none; user-select: none;
         }
         #gameContainer { position: relative; width: 100vw; height: 100vh; }
         canvas { display: block; width: 100%; height: 100%; }
         #startScreen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; top:0; left:0; width:100%; height:100%;
             background: linear-gradient(135deg, #1a0a2e, #16213e, #0f3460);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             z-index: 100; transition: opacity 0.5s;
         }
-        #startScreen h1 { font-size: 3.5em; color: #FFD700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 4px 8px rgba(0,0,0,0.5); margin-bottom: 10px; animation: pulse 2s infinite; }
-        #startScreen h2 { font-size: 1.5em; color: #e94560; margin-bottom: 25px; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        .start-btn {
-            padding: 18px 50px; font-size: 1.6em; font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(45deg, #e94560, #FFD700); color: white;
-            border: none; border-radius: 50px; cursor: pointer; transition: all 0.3s;
-            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4);
-        }
-        .start-btn:hover { transform: scale(1.08); box-shadow: 0 12px 35px rgba(233, 69, 96, 0.6); }
-        .instructions {
-            color: #ccc; font-size: 0.95em; margin-top: 20px; text-align: center;
-            line-height: 1.8; max-width: 550px; padding: 0 15px;
-        }
+        #startScreen h1 { font-size: 2.8em; color: #FFD700; text-shadow: 0 0 20px rgba(255,215,0,0.5); margin-bottom: 10px; animation: pulse 2s infinite; }
+        #startScreen h2 { font-size: 1.2em; color: #e94560; margin-bottom: 20px; }
+        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+        .start-btn { padding: 15px 45px; font-size: 1.4em; font-family: 'Tajawal'; background: linear-gradient(45deg,#e94560,#FFD700); color:#fff; border:none; border-radius:50px; cursor:pointer; box-shadow: 0 8px 25px rgba(233,69,96,0.4); transition: all 0.3s; }
+        .start-btn:hover { transform: scale(1.08); }
+        .instructions { color:#ccc; font-size: 0.85em; margin-top: 15px; text-align:center; line-height: 1.7; max-width:500px; padding: 0 15px; }
         .instructions span { color: #FFD700; font-weight: bold; }
-        #jailScreen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.88);
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 90;
-        }
-        #jailScreen h1 { font-size: 2.5em; color: #ff4444; text-shadow: 0 0 20px rgba(255, 68, 68, 0.5); margin-bottom: 15px; }
-        #jailScreen p { color: #fff; font-size: 1.3em; margin-bottom: 10px; text-align: center; padding: 0 10px; }
-        .mash-btn {
-            padding: 15px 40px; font-size: 1.3em; font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(45deg, #ff4444, #ff8800); color: white;
-            border: none; border-radius: 50px; cursor: pointer; transition: all 0.2s; margin: 10px;
-        }
-        .mash-btn:hover { transform: scale(1.05); }
-        .mash-btn:active { transform: scale(0.95); }
-        #progressBar { width: 280px; height: 25px; background: #333; border-radius: 15px; margin-top: 12px; overflow: hidden; max-width: 90%; }
-        #progressFill { width: 0%; height: 100%; background: linear-gradient(90deg, #ff4444, #FFD700); border-radius: 15px; transition: width 0.1s; }
-        #winScreen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 95; background: linear-gradient(135deg, #1a0a2e, #0f3460, #16213e);
-        }
         #hud {
-            position: absolute; top: 12px; right: 10px; left: 10px;
-            display: none; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px;
+            position: absolute; top:10px; right:10px; left:10px;
+            display: none; flex-wrap: wrap; justify-content: center; align-items:center; gap:6px;
             z-index: 50; pointer-events: none;
         }
-        .hud-item {
-            background: rgba(0,0,0,0.75); padding: 6px 15px; border-radius: 25px;
-            color: white; font-size: 0.95em; backdrop-filter: blur(5px);
-            border: 2px solid rgba(255,255,255,0.15); white-space: nowrap;
-        }
-        .hud-item.chicken { border-color: #FFD700; color: #FFD700; }
-        .hud-item.watermelon { border-color: #4CAF50; color: #4CAF50; }
-        .hud-item.score { border-color: #e94560; color: #e94560; }
-        #mobileControls { position: absolute; bottom: 20px; left: 20px; z-index: 60; display: none; }
-        .dpad { display: grid; grid-template-columns: 60px 60px 60px; grid-template-rows: 60px 60px 60px; gap: 5px; }
-        .dpad-btn {
-            background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 12px; color: white; font-size: 1.5em; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .dpad-btn:active { background: rgba(255,255,255,0.4); }
-        .dpad-up { grid-column: 2; grid-row: 1; }
-        .dpad-left { grid-column: 1; grid-row: 2; }
-        .dpad-right { grid-column: 3; grid-row: 2; }
-        .dpad-down { grid-column: 2; grid-row: 3; }
+        .hud-item { background:rgba(0,0,0,0.75); padding:5px 12px; border-radius:20px; color:#fff; font-size:0.85em; backdrop-filter:blur(5px); border:2px solid rgba(255,255,255,0.15); white-space:nowrap; }
+        .hud-item.chicken { border-color:#FFD700; color:#FFD700; }
+        .hud-item.watermelon { border-color:#4CAF50; color:#4CAF50; }
+        .hud-item.score { border-color:#e94560; color:#e94560; }
+        .hud-item.level { border-color:#2196F3; color:#2196F3; }
         #alertBanner {
-            position: absolute; top: 55px; left: 50%; transform: translateX(-50%);
-            background: rgba(233, 69, 96, 0.92); color: white; padding: 8px 20px;
-            border-radius: 25px; font-size: 1.1em; z-index: 50; display: none;
-            text-align: center; max-width: 90%; animation: slideDown 0.3s ease;
+            position:absolute; top:50px; left:50%; transform:translateX(-50%);
+            background:rgba(233,69,96,0.92); color:#fff; padding:8px 18px; border-radius:20px;
+            font-size:1em; z-index:50; display:none; text-align:center; max-width:90%;
         }
-        @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 55px; opacity: 1; } }
-        @media (max-width: 768px) {
-            #startScreen h1 { font-size: 2.5em; }
-            #startScreen h2 { font-size: 1.2em; }
-            .instructions { font-size: 0.85em; }
-            .hud-item { font-size: 0.8em; padding: 5px 10px; }
-            #mobileControls { display: grid; }
+        #jailScreen {
+            position:absolute; top:0;left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.88); display:none; flex-direction:column;
+            align-items:center; justify-content:center; z-index:90;
+        }
+        #jailScreen h1 { font-size:2.2em; color:#ff4444; margin-bottom:15px; }
+        #jailScreen p { color:#fff; font-size:1.2em; margin-bottom:8px; text-align:center; padding:0 10px; }
+        .mash-btn {
+            padding:14px 35px; font-size:1.2em; font-family:'Tajawal';
+            background:linear-gradient(45deg,#ff4444,#ff8800); color:#fff;
+            border:none; border-radius:50px; cursor:pointer; margin:10px;
+        }
+        .mash-btn:active { transform:scale(0.93); }
+        #progressBar { width:260px; height:22px; background:#333; border-radius:12px; margin-top:10px; overflow:hidden; max-width:90%; }
+        #progressFill { width:0%; height:100%; background:linear-gradient(90deg,#ff4444,#FFD700); border-radius:12px; transition:width 0.1s; }
+        #mashCount { color:#fff; margin-top:6px; font-size:1em; }
+        #winScreen {
+            position:absolute; top:0;left:0; width:100%; height:100%;
+            display:none; flex-direction:column; align-items:center; justify-content:center;
+            z-index:95; background:linear-gradient(135deg,#1a0a2e,#0f3460,#16213e);
+        }
+        #bossHUD {
+            position:absolute; top:80px; right:10px; left:10px;
+            display:none; flex-wrap:wrap; justify-content:center; gap:8px;
+            z-index:55; pointer-events:none;
+        }
+        .boss-bar { width:180px; max-width:40%; }
+        .boss-bar .bar-bg { width:100%; height:14px; background:#333; border-radius:8px; overflow:hidden; margin-top:3px; }
+        .boss-bar .bar-fill { height:100%; border-radius:8px; transition:width 0.3s; }
+        .boss-bar .bar-label { color:#fff; font-size:0.8em; text-align:center; }
+        .boss-bar.suhail .bar-fill { background: linear-gradient(90deg,#1565C0,#42A5F5); }
+        .boss-bar.amjad .bar-fill { background: linear-gradient(90deg,#AD1457,#EC407A); }
+        .boss-bar.saleh .bar-fill { background: linear-gradient(90deg,#BF360C,#FF7043); }
+        #abilityBar {
+            position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+            display:none; gap:10px; z-index:55;
+        }
+        .ability-btn {
+            width:60px; height:60px; border-radius:50%; border:3px solid #FFD700;
+            background:rgba(0,0,0,0.8); color:#fff; font-size:1.5em; cursor:pointer;
+            display:flex; align-items:center; justify-content:center; position:relative;
+            transition: transform 0.2s;
+        }
+        .ability-btn:active:not(.on-cooldown):not(.locked) { transform:scale(0.9); }
+        .ability-btn.on-cooldown { opacity:0.5; border-color:#666; }
+        .ability-btn.locked { opacity:0.3; border-color:#444; cursor:not-allowed; }
+        .ability-btn .cooldown-overlay {
+            position:absolute; top:0; left:0; width:100%; height:100%;
+            border-radius:50%; background:rgba(0,0,0,0.7);
+            display:flex; align-items:center; justify-content:center;
+            font-size:0.6em; color:#FFD700;
+        }
+        .ability-btn .ability-label {
+            position:absolute; bottom:-18px; font-size:0.5em; color:#FFD700; white-space:nowrap;
+        }
+        #effectCanvas {
+            position:absolute; top:0; left:0; width:100%; height:100%;
+            pointer-events:none; z-index:40;
+        }
+        @media (max-width:768px) {
+            #startScreen h1 { font-size:2em; }
+            #startScreen h2 { font-size:0.95em; }
+            .hud-item { font-size:0.7em; padding:4px 8px; }
+            .ability-btn { width:50px; height:50px; font-size:1.2em; }
+            .ability-btn .ability-label { font-size:0.45em; }
+            .boss-bar { width:130px; }
         }
     </style>
 </head>
 <body>
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
+        <canvas id="effectCanvas"></canvas>
         <div id="startScreen">
             <h1>🐔 لعبة وضاح 🍉</h1>
-            <h2>سارق الدجاج والبطيخ</h2>
+            <h2>67 مستوى - المعركة الأخيرة</h2>
             <button class="start-btn" onclick="startGame()">🎮 ابدأ اللعبة</button>
             <div class="instructions">
-                <span>🎯 الهدف:</span> اسرق الدجاج والبطيخ ووصل لمنطقة الفوز!<br>
-                <span>⌨️ التحكم:</span> أسهم أو WASD أو أزرار الشاشة على الجوال<br>
+                <span>🎯 الهدف:</span> اجمع الدجاج والبطيخ وروح لمنطقة الفوز!<br>
+                <span>📱 التحكم:</span> Joystick على الجوال | أسهم/WASD على الكمبيوتر<br>
                 <span>👮‍♂️ احذر:</span> سهيل وامجد يطاردونك!<br>
-                <span>🔒 السجن:</span> انمسكت؟ اضغط بسرعة للهروب!<br>
-                <span>🍉 البطيخ:</span> نادر ويساوي نقاط أكثر!<br>
-                <span>🏆 الفوز:</span> اجمع 8 دجاجات أو 3 بطيخات وروح للفوز<br><br>
-                <span>🔊 ملاحظة:</span> ضع ملفات الصوت في نفس مجلد ملف الـ HTML
+                <span>🔒 السجن:</span> انمسكت؟ اضغط الزر بسرعة للهروب!<br>
+                <span>⚡ المهارات:</span><br>
+                🛡️ درع البطيخ - من المستوى 1<br>
+                💨 سرعة الدجاج - من المستوى 15<br>
+                ⚡ البروستد المطلق - من المستوى 30<br>
+                <span>🏆 المستوى 67:</span> هزم سهيل ثم امجد ثم صالح!<br>
+                <span>⚔️ في المعركة:</span> ادهس الزعماء أو استخدم المهارات لقتلهم!
             </div>
         </div>
         <div id="jailScreen">
             <h1>🔒 تم القبض عليك!</h1>
             <p>صالح حارس السجن ما يبيك تهرب!</p>
-            <p>اضغط على الزر بأسرع ما يمكن أو اضغط أي زر!</p>
+            <p>اضغط على الزر بسرعة أو اضغط أي زر!</p>
             <button class="mash-btn" id="mashBtn">🔓 اضغط للهروب!</button>
             <div id="progressBar"><div id="progressFill"></div></div>
-            <p id="mashCount" style="margin-top:8px;">0 / 20</p>
+            <p id="mashCount">0 / 15</p>
         </div>
         <div id="winScreen"><canvas id="winCanvas"></canvas></div>
         <div id="hud">
+            <div class="hud-item level" id="levelDisplay">📊 المستوى 1</div>
             <div class="hud-item chicken" id="chickenCount">🐔 0</div>
             <div class="hud-item watermelon" id="watermelonCount">🍉 0</div>
             <div class="hud-item score" id="scoreDisplay">⭐ 0</div>
         </div>
         <div id="alertBanner"></div>
-        <div id="mobileControls">
-            <div class="dpad">
-                <button class="dpad-btn dpad-up">⬆</button>
-                <button class="dpad-btn dpad-left">⬅</button>
-                <button class="dpad-btn dpad-right">➡</button>
-                <button class="dpad-btn dpad-down">⬇</button>
+        <div id="bossHUD">
+            <div class="boss-bar suhail" id="suhailBar" style="display:none;">
+                <div class="bar-label">سهيل 👮</div>
+                <div class="bar-bg"><div class="bar-fill" id="suhailFill" style="width:100%"></div></div>
             </div>
+            <div class="boss-bar amjad" id="amjadBar" style="display:none;">
+                <div class="bar-label">امجد 👮</div>
+                <div class="bar-bg"><div class="bar-fill" id="amjadFill" style="width:100%"></div></div>
+            </div>
+            <div class="boss-bar saleh" id="salehBar" style="display:none;">
+                <div class="bar-label">صالح 🔒</div>
+                <div class="bar-bg"><div class="bar-fill" id="salehFill" style="width:100%"></div></div>
+            </div>
+        </div>
+        <div id="abilityBar">
+            <button class="ability-btn" id="shieldBtn" onclick="useAbility('shield')">🛡️<span class="ability-label">درع البطيخ</span><div class="cooldown-overlay" id="shieldCD" style="display:none;"></div></button>
+            <button class="ability-btn" id="speedBtn" onclick="useAbility('speed')">💨<span class="ability-label">سرعة الدجاج</span><div class="cooldown-overlay" id="speedCD" style="display:none;"></div></button>
+            <button class="ability-btn" id="absBtn" onclick="useAbility('absolute')">⚡<span class="ability-label">البروستد المطلق</span><div class="cooldown-overlay" id="absCD" style="display:none;"></div></button>
         </div>
     </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const effectCanvas = document.getElementById('effectCanvas');
+        const ectx = effectCanvas.getContext('2d');
         const winCanvasEl = document.getElementById('winCanvas');
         const winCtx = winCanvasEl.getContext('2d');
 
         let W, H;
         function resize() {
-            W = canvas.width = window.innerWidth;
-            H = canvas.height = window.innerHeight;
-            winCanvasEl.width = W;
-            winCanvasEl.height = H;
+            W = canvas.width = effectCanvas.width = window.innerWidth;
+            H = canvas.height = effectCanvas.height = window.innerHeight;
+            winCanvasEl.width = W; winCanvasEl.height = H;
         }
         resize();
         window.addEventListener('resize', resize);
 
         const charImages = {};
+        const itemImages = { chicken: null, watermelon: null };
         const imageUrls = {
             player: 'https://i.imgur.com/d99lgoS.png',
             police1: 'https://i.imgur.com/WEDvGXY.png',
@@ -175,16 +201,17 @@
             cheer3: 'https://i.ibb.co/Ndj2Kgtr/95cb241HoecwsFtSMfrZtMjSK8Jmc9G7DP2EgJu8.png',
             cheer4: 'https://i.ibb.co/b5j6vvzz/Untitled-kanye-LE-upscale-prime.png',
             cheer5: 'https://i.ibb.co/RGfJkRJb/images-LE-upscale-prime.png',
-            cheer6: 'https://i.ibb.co/JjpWc8FX/Untitled-black-people-LE-upscale-prime.png'
+            cheer6: 'https://i.ibb.co/JjpWc8FX/Untitled-black-people-LE-upscale-prime.png',
+            chickenItem: 'https://i.ibb.co/wh9QyKdQ/Untitled.png',
+            watermelonItem: 'https://i.ibb.co/Q7r2Br3M/Untitled.png'
         };
         for (const [key, url] of Object.entries(imageUrls)) {
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.src = url;
-            charImages[key] = img;
+            const img = new Image(); img.crossOrigin = "anonymous"; img.src = url;
+            if (key === 'chickenItem') itemImages.chicken = img;
+            else if (key === 'watermelonItem') itemImages.watermelon = img;
+            else charImages[key] = img;
         }
 
-        // ====== الأصوات: نفس المجلد مع ملف الموقع ======
         const winSoundFiles = [
             "Voicy_i hate ni- repost btw.mp3",
             "Voicy_Loud neck hurts .mp3",
@@ -195,63 +222,151 @@
             "Voicy_10 seconds marsh.mp3",
             "Voicy_Epic sound.mp3"
         ];
-
         const winAudioElements = [];
-        winSoundFiles.forEach((fileName) => {
-            const audio = new Audio(fileName);
-            audio.preload = "auto";
-            audio.volume = 1.0;
-            audio.loop = true;
-            audio.onerror = () => {
-                console.warn('ماقدر يحمل الصوت:', fileName, '- تأكد إنه بنفس مجلد الموقع');
-            };
-            winAudioElements.push(audio);
+        winSoundFiles.forEach((fn) => {
+            const a = new Audio(fn); a.preload = "auto"; a.volume = 1.0; a.loop = true;
+            a.onerror = () => console.warn('ماقدر يحمل:', fn);
+            winAudioElements.push(a);
         });
 
         let gameState = 'start';
+        let currentLevel = 1;
+        const maxLevel = 67;
         let mashCount = 0;
-        const mashNeeded = 20;
+        const mashNeeded = 15;
         let playerJailRespawnTimer = 0;
-        let hasPlayedWinSounds = false;
         let soundsAreLooping = false;
 
         const playerObj = {
-            x: 0, y: 0, w: 50, h: 50, speed: 4.5,
-            chickens: 0, watermelons: 0, score: 0,
-            facing: 'down', frame: 0, invincible: false
+            x:0, y:0, w:50, h:50, baseSpeed:4.5, speed:4.5,
+            chickens:0, watermelons:0, score:0,
+            facing:'down', frame:0, invincible:false, stunned:false,
+            shieldActive:false, shieldTimer:0,
+            speedBoostActive:false, speedTimer:0,
+            shieldCooldown:0, speedCooldown:0, absoluteCooldown:0,
+            attackDamage: 10,
+            attackHitTimer: 0
         };
 
         const policeArr = [
-            { x: 0, y: 0, w: 45, h: 45, speed: 2.0, name: 'سهيل', img: 'police1' },
-            { x: 0, y: 0, w: 45, h: 45, speed: 2.3, name: 'امجد', img: 'police2' }
+            { x:0, y:0, w:45, h:45, speed:2.0, name:'سهيل', img:'police1', active:true, stunned:false, abilityTimer:0, hp:80, maxHp:80 },
+            { x:0, y:0, w:45, h:45, speed:2.3, name:'امجد', img:'police2', active:true, stunned:false, abilityTimer:0, hp:80, maxHp:80 }
         ];
+
+        const guardObj = { x:0, y:0, w:55, h:55, speed:2.8, name:'صالح', img:'guard',
+            hp:120, maxHp:120, active:false, stunned:false, abilityTimer:0 };
 
         let items = [];
         let canEnterWin = false;
+        let isBossFight = false;
+        let bossPhase = 0;
+        let bossEffects = [];
+        let jailZone = {};
+        let winZone = {};
+
+        const SHIELD_UNLOCK_LEVEL = 1;
+        const SPEED_UNLOCK_LEVEL = 15;
+        const ABSOLUTE_UNLOCK_LEVEL = 30;
 
         const keys = {};
         window.addEventListener('keydown', e => {
             keys[e.key] = true;
             if (gameState === 'jailed') mashEscape();
+            // Spacebar attack during boss fight
+            if ((e.key === ' ' || e.key === 'Space') && isBossFight && gameState === 'playing') {
+                playerAttack();
+            }
         });
         window.addEventListener('keyup', e => { keys[e.key] = false; });
 
-        const mobileDir = { up: false, down: false, left: false, right: false };
-        const dPadButtons = document.querySelectorAll('.dpad-btn');
-        dPadButtons.forEach(btn => {
-            const dir = btn.classList.contains('dpad-up') ? 'up' :
-                        btn.classList.contains('dpad-down') ? 'down' :
-                        btn.classList.contains('dpad-left') ? 'left' : 'right';
-            btn.addEventListener('touchstart', (e) => { e.preventDefault(); mobileDir[dir] = true; });
-            btn.addEventListener('touchend', (e) => { e.preventDefault(); mobileDir[dir] = false; });
-            btn.addEventListener('mousedown', () => { mobileDir[dir] = true; });
-            btn.addEventListener('mouseup', () => { mobileDir[dir] = false; });
-            btn.addEventListener('mouseleave', () => { mobileDir[dir] = false; });
+        // Tap to attack during boss fight
+        canvas.addEventListener('dblclick', (e) => {
+            if (isBossFight && gameState === 'playing') {
+                playerAttack();
+            }
         });
 
-        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-            document.getElementById('mobileControls').style.display = 'block';
+        const joystick = { active:false, id:null, dx:0, dy:0, maxDist:50 };
+        let joyTouchStartX = 0, joyTouchStartY = 0;
+        let joystickDrawX = 0, joystickDrawY = 0;
+        let joystickActiveTouch = false;
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            for (let t of e.changedTouches) {
+                if (!joystickActiveTouch) {
+                    joystickActiveTouch = true;
+                    joyTouchStartX = t.clientX;
+                    joyTouchStartY = t.clientY;
+                    joystick.id = t.identifier;
+                    joystick.active = true;
+                }
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            for (let t of e.changedTouches) {
+                if (t.identifier === joystick.id && joystick.active) {
+                    const dx = t.clientX - joyTouchStartX;
+                    const dy = t.clientY - joyTouchStartY;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    const maxD = joystick.maxDist;
+                    if (dist > 0) {
+                        const scale = Math.min(dist, maxD) / dist;
+                        joystick.dx = (dx * scale) / maxD;
+                        joystick.dy = (dy * scale) / maxD;
+                    }
+                    joystickDrawX = joyTouchStartX;
+                    joystickDrawY = joyTouchStartY;
+                }
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            for (let t of e.changedTouches) {
+                if (t.identifier === joystick.id) {
+                    joystickActiveTouch = false;
+                    joystick.active = false;
+                    joystick.dx = 0;
+                    joystick.dy = 0;
+                    joystick.id = null;
+                }
+            }
+        }, { passive: false });
+
+        const mashBtn = document.getElementById('mashBtn');
+        mashBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            mashEscape();
+        }, { passive: false });
+        mashBtn.addEventListener('mousedown', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            mashEscape();
+        });
+
+        function mashEscape() {
+            if (gameState !== 'jailed') return;
+            mashCount++;
+            playSynthSound('escape');
+            document.getElementById('progressFill').style.width = `${(mashCount/mashNeeded)*100}%`;
+            document.getElementById('mashCount').textContent = `${mashCount} / ${mashNeeded}`;
+            if (mashCount >= mashNeeded) escapeJail();
         }
+
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r) {
+                if (typeof r === 'number') r = [r,r,r,r];
+                this.moveTo(x+r[0],y); this.lineTo(x+w-r[1],y);
+                this.quadraticCurveTo(x+w,y,x+w,y+r[1]); this.lineTo(x+w,y+h-r[2]);
+                this.quadraticCurveTo(x+w,y+h,x+w-r[2],y+h); this.lineTo(x+r[3],y+h);
+                this.quadraticCurveTo(x,y+h,x,y+h-r[3]); this.lineTo(x,y+r[0]);
+                this.quadraticCurveTo(x,y,x+r[0],y); this.closePath(); return this;
+            };
+        }
+
+        document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 
         let audioCtx;
         function initAudio() {
@@ -263,783 +378,1214 @@
             if (!audioCtx) return;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            osc.connect(gain); gain.connect(audioCtx.destination);
             const now = audioCtx.currentTime;
-
             switch(type) {
                 case 'chicken':
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(900, now);
-                    osc.frequency.exponentialRampToValueAtTime(400, now + 0.12);
-                    gain.gain.setValueAtTime(0.25, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                    osc.start(now); osc.stop(now + 0.15);
-                    const o2 = audioCtx.createOscillator();
-                    const g2 = audioCtx.createGain();
-                    o2.connect(g2); g2.connect(audioCtx.destination);
-                    o2.type = 'square';
-                    o2.frequency.setValueAtTime(800, now + 0.15);
-                    o2.frequency.exponentialRampToValueAtTime(500, now + 0.25);
-                    g2.gain.setValueAtTime(0.2, now + 0.15);
-                    g2.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
-                    o2.start(now + 0.15); o2.stop(now + 0.28);
+                    osc.type='square'; osc.frequency.setValueAtTime(900,now);
+                    osc.frequency.exponentialRampToValueAtTime(400,now+0.12);
+                    gain.gain.setValueAtTime(0.25,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.15);
+                    osc.start(now); osc.stop(now+0.15);
                     break;
                 case 'watermelon':
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(500, now);
-                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.3);
-                    gain.gain.setValueAtTime(0.3, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-                    osc.start(now); osc.stop(now + 0.4);
+                    osc.type='sine'; osc.frequency.setValueAtTime(500,now);
+                    osc.frequency.exponentialRampToValueAtTime(1200,now+0.3);
+                    gain.gain.setValueAtTime(0.3,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.4);
+                    osc.start(now); osc.stop(now+0.4);
                     break;
                 case 'caught':
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(400, now);
-                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.6);
-                    gain.gain.setValueAtTime(0.35, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
-                    osc.start(now); osc.stop(now + 0.6);
+                    osc.type='sawtooth'; osc.frequency.setValueAtTime(400,now);
+                    osc.frequency.exponentialRampToValueAtTime(100,now+0.6);
+                    gain.gain.setValueAtTime(0.35,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.6);
+                    osc.start(now); osc.stop(now+0.6);
                     break;
                 case 'escape':
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(500, now);
-                    osc.frequency.exponentialRampToValueAtTime(900, now + 0.15);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
-                    osc.start(now); osc.stop(now + 0.18);
+                    osc.type='sine'; osc.frequency.setValueAtTime(500,now);
+                    osc.frequency.exponentialRampToValueAtTime(900,now+0.15);
+                    gain.gain.setValueAtTime(0.2,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.18);
+                    osc.start(now); osc.stop(now+0.18);
                     break;
                 case 'alert':
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(700, now);
-                    osc.frequency.setValueAtTime(900, now + 0.08);
-                    osc.frequency.setValueAtTime(700, now + 0.16);
-                    gain.gain.setValueAtTime(0.15, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-                    osc.start(now); osc.stop(now + 0.25);
+                    osc.type='square'; osc.frequency.setValueAtTime(700,now);
+                    osc.frequency.setValueAtTime(900,now+0.08); osc.frequency.setValueAtTime(700,now+0.16);
+                    gain.gain.setValueAtTime(0.15,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.25);
+                    osc.start(now); osc.stop(now+0.25);
+                    break;
+                case 'ability':
+                    osc.type='sine'; osc.frequency.setValueAtTime(200,now);
+                    osc.frequency.exponentialRampToValueAtTime(2000,now+0.5);
+                    gain.gain.setValueAtTime(0.3,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.5);
+                    osc.start(now); osc.stop(now+0.5);
+                    break;
+                case 'hit':
+                    osc.type='sawtooth'; osc.frequency.setValueAtTime(150,now);
+                    osc.frequency.exponentialRampToValueAtTime(50,now+0.2);
+                    gain.gain.setValueAtTime(0.3,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.2);
+                    osc.start(now); osc.stop(now+0.2);
+                    break;
+                case 'unlock':
+                    [400, 500, 600, 800].forEach((freq, i) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g); g.connect(audioCtx.destination);
+                        o.type = 'sine';
+                        o.frequency.setValueAtTime(freq, now + i * 0.1);
+                        g.gain.setValueAtTime(0.25, now + i * 0.1);
+                        g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.3);
+                        o.start(now + i * 0.1);
+                        o.stop(now + i * 0.1 + 0.3);
+                    });
+                    break;
+                case 'playerattack':
+                    osc.type='square'; osc.frequency.setValueAtTime(600,now);
+                    osc.frequency.exponentialRampToValueAtTime(100,now+0.15);
+                    gain.gain.setValueAtTime(0.2,now); gain.gain.exponentialRampToValueAtTime(0.01,now+0.18);
+                    osc.start(now); osc.stop(now+0.18);
                     break;
             }
         }
 
-        // ====== تشغيل كل أصوات الفوز - تشتغل بشكل مستمر ======
+        // ====== Player Attack during boss fight ======
+        function playerAttack() {
+            if (!isBossFight || playerObj.attackHitTimer > 0) return;
+            playerObj.attackHitTimer = 0.3; // 300ms cooldown
+            
+            // Find closest boss and deal damage
+            const bosses = [];
+            if (bossPhase >= 1 && policeArr[0].active) bosses.push(policeArr[0]);
+            if (bossPhase >= 2 && policeArr[1].active) bosses.push(policeArr[1]);
+            if (bossPhase === 3 && guardObj.active) bosses.push(guardObj);
+            
+            bosses.forEach(boss => {
+                const dx = (boss.x + boss.w/2) - (playerObj.x + playerObj.w/2);
+                const dy = (boss.y + boss.h/2) - (playerObj.y + playerObj.h/2);
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 120) { // Attack range
+                    const dmg = playerObj.speedBoostActive ? 15 : playerObj.attackDamage;
+                    boss.hp -= dmg;
+                    playSynthSound('hit');
+                    
+                    // Visual effect
+                    bossEffects.push({ type:'playerhit', x:boss.x+boss.w/2, y:boss.y+boss.h/2, alpha:1, time:0, damage: dmg });
+                    showAlert(`⚔️ ضرر ${dmg}!`, 500);
+                    
+                    if (boss.hp <= 0) {
+                        handleBossDefeat(boss);
+                    }
+                }
+            });
+        }
+
         function startWinSoundsLoop() {
             if (soundsAreLooping) return;
             soundsAreLooping = true;
-            hasPlayedWinSounds = true;
-            winAudioElements.forEach(audio => {
-                audio.currentTime = 0;
-                audio.loop = true;
-                audio.play().catch(err => {
-                    console.warn('خطأ تشغيل الصوت:', err);
-                });
-            });
+            winAudioElements.forEach(a => { a.currentTime=0; a.loop=true; a.play().catch(()=>{}); });
         }
-
         function stopWinSoundsLoop() {
             soundsAreLooping = false;
-            winAudioElements.forEach(audio => {
-                audio.pause();
-                audio.currentTime = 0;
-            });
+            winAudioElements.forEach(a => { a.pause(); a.currentTime=0; });
         }
 
-        function showAlert(text, duration = 2500) {
-            const banner = document.getElementById('alertBanner');
-            banner.textContent = text;
-            banner.style.display = 'block';
-            clearTimeout(banner._timer);
-            banner._timer = setTimeout(() => { banner.style.display = 'none'; }, duration);
+        function showAlert(text, duration=2500) {
+            const b = document.getElementById('alertBanner');
+            b.textContent = text; b.style.display='block';
+            clearTimeout(b._timer);
+            b._timer = setTimeout(()=>{b.style.display='none';},duration);
+        }
+
+        function getLevelConfig(level) {
+            const chickenNeeded = Math.min(2 + Math.floor(level * 0.25), 10);
+            const watermelonNeeded = Math.min(1 + Math.floor(level * 0.06), 3);
+            const policeSpeed = 1.6 + level * 0.035;
+            return { chickenNeeded, watermelonNeeded, policeSpeed };
         }
 
         function spawnItems() {
             items = [];
+            const cfg = getLevelConfig(currentLevel);
             const margin = 80;
-            for (let i = 0; i < 12; i++) {
+            for (let i = 0; i < cfg.chickenNeeded + 4; i++) {
                 items.push({
-                    x: margin + Math.random() * (W - margin * 2),
-                    y: margin + Math.random() * (H - margin * 2),
-                    type: 'chicken', w: 38, h: 38, collected: false,
-                    bobOffset: Math.random() * Math.PI * 2
+                    x: margin + Math.random()*(W-margin*2), y: margin + Math.random()*(H-margin*2),
+                    type:'chicken', w:45, h:45, collected:false, bobOffset:Math.random()*Math.PI*2
                 });
             }
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < cfg.watermelonNeeded + 2; i++) {
                 items.push({
-                    x: margin + Math.random() * (W - margin * 2),
-                    y: margin + Math.random() * (H - margin * 2),
-                    type: 'watermelon', w: 38, h: 38, collected: false,
-                    bobOffset: Math.random() * Math.PI * 2
+                    x: margin + Math.random()*(W-margin*2), y: margin + Math.random()*(H-margin*2),
+                    type:'watermelon', w:45, h:45, collected:false, bobOffset:Math.random()*Math.PI*2
                 });
             }
         }
 
         function setupPositions() {
-            playerObj.x = W / 2 - playerObj.w / 2;
+            playerObj.x = W/2 - playerObj.w/2;
             playerObj.y = H - 120;
-            playerObj.invincible = false;
+            playerObj.invincible = false; playerObj.stunned = false;
+            playerObj.shieldActive = false; playerObj.speedBoostActive = false;
+            playerObj.shieldCooldown = 0; playerObj.speedCooldown = 0; playerObj.absoluteCooldown = 0;
+            playerObj.speed = playerObj.baseSpeed;
+            playerObj.attackHitTimer = 0;
 
-            policeArr[0].x = 80;
-            policeArr[0].y = 80;
-            policeArr[1].x = W - 125;
-            policeArr[1].y = 80;
+            const cfg = getLevelConfig(currentLevel);
+            policeArr[0].x = 80; policeArr[0].y = 80;
+            policeArr[0].speed = cfg.policeSpeed;
+            policeArr[0].active = true; policeArr[0].stunned = false; policeArr[0].abilityTimer = 0;
+            
+            policeArr[1].x = W - 125; policeArr[1].y = 80;
+            policeArr[1].speed = cfg.policeSpeed + 0.25;
+            policeArr[1].active = true; policeArr[1].stunned = false; policeArr[1].abilityTimer = 0;
 
-            window._WIN_ZONE = { x: W / 2 - 90, y: 25, w: 180, h: 75 };
-            window._JAIL_ZONE = { x: W - 170, y: H - 160, w: 140, h: 130 };
+            guardObj.active = false; guardObj.stunned = false; guardObj.abilityTimer = 0;
+
+            winZone = { x: W/2 - 90, y: 25, w: 180, h: 75 };
+            jailZone = { x: W - 170, y: H - 160, w: 140, h: 130 };
 
             spawnItems();
         }
 
         function collides(a, b) {
-            return a.x < b.x + b.w && a.x + a.w > b.x &&
-                   a.y < b.y + b.h && a.y + a.h > b.y;
+            return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
         }
 
         function startGame() {
             initAudio();
             stopWinSoundsLoop();
             document.getElementById('startScreen').style.opacity = '0';
-            setTimeout(() => { document.getElementById('startScreen').style.display = 'none'; }, 500);
-            document.getElementById('hud').style.display = 'flex';
-            document.getElementById('winScreen').style.display = 'none';
+            setTimeout(()=>{document.getElementById('startScreen').style.display='none';},500);
+            document.getElementById('hud').style.display='flex';
+            document.getElementById('winScreen').style.display='none';
+            document.getElementById('bossHUD').style.display='none';
+            document.getElementById('abilityBar').style.display='flex';
             gameState = 'playing';
-            setupPositions();
-            playerObj.chickens = 0;
-            playerObj.watermelons = 0;
-            playerObj.score = 0;
+            currentLevel = 1;
+            isBossFight = false;
+            bossPhase = 0;
+            playerObj.chickens = 0; playerObj.watermelons = 0; playerObj.score = 0;
             canEnterWin = false;
-            hasPlayedWinSounds = false;
             mashCount = 0;
+            bossEffects = [];
+            setupPositions();
             updateHUD();
             requestAnimationFrame(gameLoop);
         }
 
         function updateHUD() {
+            document.getElementById('levelDisplay').textContent = `📊 المستوى ${currentLevel}`;
             document.getElementById('chickenCount').textContent = `🐔 ${playerObj.chickens}`;
             document.getElementById('watermelonCount').textContent = `🍉 ${playerObj.watermelons}`;
             document.getElementById('scoreDisplay').textContent = `⭐ ${playerObj.score}`;
         }
 
-        function mashEscape() {
-            if (gameState !== 'jailed') return;
-            mashCount++;
-            playSynthSound('escape');
-            document.getElementById('progressFill').style.width = `${(mashCount / mashNeeded) * 100}%`;
-            document.getElementById('mashCount').textContent = `${mashCount} / ${mashNeeded}`;
-            if (mashCount >= mashNeeded) escapeJail();
-        }
-
         function escapeJail() {
             gameState = 'playing';
-            document.getElementById('jailScreen').style.display = 'none';
-
-            playerObj.x = window._JAIL_ZONE.x - 100;
-            playerObj.y = window._JAIL_ZONE.y + window._JAIL_ZONE.h / 2 - playerObj.h / 2;
-
-            policeArr.forEach((cop, idx) => {
-                cop.x = idx === 0 ? 60 : W - 105;
-                cop.y = 120 + idx * 80;
-            });
-
+            document.getElementById('jailScreen').style.display='none';
+            playerObj.x = jailZone.x - 100;
+            playerObj.y = jailZone.y + jailZone.h/2 - playerObj.h/2;
+            policeArr.forEach((cop,idx) => { cop.x = idx===0 ? 60 : W-105; cop.y = 120+idx*80; cop.stunned=false; });
             mashCount = 0;
-            document.getElementById('progressFill').style.width = '0%';
-            document.getElementById('mashCount').textContent = `0 / ${mashNeeded}`;
-
+            document.getElementById('progressFill').style.width='0%';
+            document.getElementById('mashCount').textContent=`0 / ${mashNeeded}`;
             playerObj.invincible = true;
             playerJailRespawnTimer = 2000;
-
-            showAlert('🔓 هربت من السجن! عندك حماية 2 ثانية');
+            showAlert('🔓 هربت! عندك حماية 2 ثانية');
             playSynthSound('alert');
+        }
+
+        // ====== المهارات ======
+        function useAbility(type) {
+            switch(type) {
+                case 'shield':
+                    if (currentLevel < SHIELD_UNLOCK_LEVEL) return;
+                    if (playerObj.shieldCooldown > 0) return;
+                    playerObj.shieldCooldown = 10;
+                    playerObj.shieldActive = true;
+                    playerObj.shieldTimer = 4;
+                    playSynthSound('ability');
+                    showAlert('🛡️ درع البطيخ! حماية 4 ثواني!', 1500);
+                    break;
+
+                case 'speed':
+                    if (currentLevel < SPEED_UNLOCK_LEVEL) {
+                        showAlert(`💨 سرعة الدجاج تفتح في المستوى ${SPEED_UNLOCK_LEVEL}!`, 2000);
+                        return;
+                    }
+                    if (playerObj.speedCooldown > 0) return;
+                    playerObj.speedCooldown = 8;
+                    playerObj.speedBoostActive = true;
+                    playerObj.speedTimer = 3;
+                    playerObj.speed = playerObj.baseSpeed * 1.8;
+                    playSynthSound('ability');
+                    showAlert('💨 سرعة الدجاج! ضرر أكثر!', 1500);
+                    break;
+
+                case 'absolute':
+                    if (currentLevel < ABSOLUTE_UNLOCK_LEVEL) {
+                        showAlert(`⚡ البروستد المطلق يفتح في المستوى ${ABSOLUTE_UNLOCK_LEVEL}!`, 2000);
+                        return;
+                    }
+                    if (playerObj.absoluteCooldown > 0) return;
+                    playerObj.absoluteCooldown = 8;
+                    playSynthSound('ability');
+                    showAlert('⚡ البروستد المطلق!', 2000);
+                    
+                    bossEffects.push({ type:'absolute', x:playerObj.x+playerObj.w/2, y:playerObj.y+playerObj.h/2,
+                        radius:0, maxRadius:250, alpha:1, time:0 });
+                    
+                    if (isBossFight) {
+                        [policeArr[0], policeArr[1], guardObj].forEach(boss => {
+                            if (boss.active && boss.hp > 0) {
+                                const dx = (boss.x+boss.w/2) - (playerObj.x+playerObj.w/2);
+                                const dy = (boss.y+boss.h/2) - (playerObj.y+playerObj.h/2);
+                                const dist = Math.sqrt(dx*dx+dy*dy);
+                                if (dist < 250) {
+                                    const dmg = 40;
+                                    boss.hp -= dmg;
+                                    playSynthSound('hit');
+                                    bossEffects.push({ type:'playerhit', x:boss.x+boss.w/2, y:boss.y+boss.h/2, alpha:1, time:0, damage: dmg });
+                                    showAlert(`⚡ ضرر ${dmg}!`, 1000);
+                                    if (boss.hp <= 0) handleBossDefeat(boss);
+                                }
+                            }
+                        });
+                    }
+                    break;
+            }
+        }
+
+        function handleBossDefeat(boss) {
+            boss.active = false;
+            boss.hp = 0;
+            bossEffects.push({ type:'defeat', x:boss.x+boss.w/2, y:boss.y+boss.h/2, alpha:1, time:0 });
+            
+            if (boss === policeArr[0] && bossPhase === 1) {
+                showAlert('💥 هزمت سهيل! امجد جاي!', 2500);
+                bossPhase = 2;
+                policeArr[1].active = true;
+                policeArr[1].hp = 90;
+                policeArr[1].maxHp = 90;
+                policeArr[1].x = W/2 - 22;
+                policeArr[1].y = H/4;
+                document.getElementById('suhailBar').style.display = 'none';
+                document.getElementById('amjadBar').style.display = 'block';
+            } else if (boss === policeArr[1] && bossPhase === 2) {
+                showAlert('💥 هزمت امجد! صالح الزعيم الأخير!', 2500);
+                bossPhase = 3;
+                guardObj.active = true;
+                guardObj.hp = 110;
+                guardObj.maxHp = 110;
+                guardObj.x = W/2 - 27;
+                guardObj.y = H/3;
+                document.getElementById('amjadBar').style.display = 'none';
+                document.getElementById('salehBar').style.display = 'block';
+            } else if (boss === guardObj && bossPhase === 3) {
+                showAlert('🏆 هزمت صالح! وضاح بطل! 🏆', 3000);
+                bossPhase = 4;
+                setTimeout(()=>{ triggerWin(); }, 2000);
+            }
+            updateBossBars();
+        }
+
+        function updateBossBars() {
+            if (policeArr[0].active && bossPhase >= 1) {
+                document.getElementById('suhailFill').style.width = `${Math.max(0,(policeArr[0].hp/policeArr[0].maxHp)*100)}%`;
+            }
+            if (policeArr[1].active && bossPhase >= 2) {
+                document.getElementById('amjadFill').style.width = `${Math.max(0,(policeArr[1].hp/policeArr[1].maxHp)*100)}%`;
+            }
+            if (guardObj.active && bossPhase >= 3) {
+                document.getElementById('salehFill').style.width = `${Math.max(0,(guardObj.hp/guardObj.maxHp)*100)}%`;
+            }
+        }
+
+        function bossAI(boss, dt) {
+            if (!boss.active || boss.hp <= 0 || boss.stunned) return;
+            
+            const targetX = playerObj.x - boss.w/2 + playerObj.w/4;
+            const targetY = playerObj.y - boss.h/2 + playerObj.h/4;
+            const cdx = targetX - boss.x;
+            const cdy = targetY - boss.y;
+            const dist = Math.sqrt(cdx*cdx+cdy*cdy) || 1;
+            
+            boss.x += (cdx/dist) * boss.speed;
+            boss.y += (cdy/dist) * boss.speed;
+            boss.x = Math.max(0, Math.min(W - boss.w, boss.x));
+            boss.y = Math.max(0, Math.min(H - boss.h, boss.y));
+
+            boss.abilityTimer += dt || 16;
+            if (boss.abilityTimer > 3500 + Math.random()*2000) {
+                boss.abilityTimer = 0;
+                useBossAbility(boss);
+            }
+
+            // Collision with player during boss fight
+            if (collides(playerObj, boss)) {
+                if (!playerObj.shieldActive && !playerObj.invincible) {
+                    playerObj.invincible = true;
+                    playerObj.attackHitTimer = 0.5;
+                    setTimeout(()=>{ playerObj.invincible = false; }, 800);
+                    
+                    // Dealing damage on contact during boss fight!
+                    const contactDmg = playerObj.speedBoostActive ? 20 : 12;
+                    boss.hp -= contactDmg;
+                    playSynthSound('hit');
+                    bossEffects.push({ type:'playerhit', x:boss.x+boss.w/2, y:boss.y+boss.h/2, alpha:1, time:0, damage: contactDmg });
+                    showAlert(`💥 دهس! ضرر ${contactDmg}!`, 800);
+                    
+                    if (boss.hp <= 0) {
+                        handleBossDefeat(boss);
+                    }
+                    updateBossBars();
+                }
+            }
+        }
+
+        function useBossAbility(boss) {
+            let abilities = [];
+            
+            if (boss.name === 'سهيل') {
+                abilities = [
+                    () => {
+                        const dx = playerObj.x - boss.x;
+                        const dy = playerObj.y - boss.y;
+                        const d = Math.sqrt(dx*dx+dy*dy) || 1;
+                        bossEffects.push({ type:'dash', x:boss.x+boss.w/2, y:boss.y+boss.h/2,
+                            targetX:playerObj.x+playerObj.w/2, targetY:playerObj.y+playerObj.h/2,
+                            alpha:1, time:0, maxTime:0.5 });
+                        boss.x += (dx/d) * 80;
+                        boss.y += (dy/d) * 80;
+                    },
+                    () => {
+                        playerObj.speed = playerObj.baseSpeed * 0.5;
+                        setTimeout(()=>{ if(!playerObj.speedBoostActive) playerObj.speed = playerObj.baseSpeed; }, 2000);
+                        bossEffects.push({ type:'net', x:playerObj.x+playerObj.w/2, y:playerObj.y+playerObj.h/2, alpha:1, time:0 });
+                        showAlert('🕸️ سهيل رمى شبكة!', 1500);
+                    },
+                    () => {
+                        playerObj.stunned = true;
+                        bossEffects.push({ type:'stun', x:playerObj.x+playerObj.w/2, y:playerObj.y+playerObj.h/2, alpha:1, time:0 });
+                        setTimeout(()=>{ playerObj.stunned = false; }, 1500);
+                        showAlert('🔊 صافرة سهيل!', 1500);
+                    }
+                ];
+            } else if (boss.name === 'امجد') {
+                abilities = [
+                    () => {
+                        const dx = playerObj.x - boss.x;
+                        const dy = playerObj.y - boss.y;
+                        const d = Math.sqrt(dx*dx+dy*dy) || 1;
+                        bossEffects.push({ type:'kick', x:boss.x+boss.w/2, y:boss.y+boss.h/2,
+                            dx:(dx/d)*8, dy:(dy/d)*8, alpha:1, time:0, radius:20 });
+                        showAlert('🦶 ركلة امجد!', 1000);
+                    },
+                    () => {
+                        bossEffects.push({ type:'storm', x:boss.x+boss.w/2, y:boss.y+boss.h/2,
+                            radius:0, maxRadius:150, alpha:1, time:0 });
+                        const pdx = playerObj.x+playerObj.w/2 - (boss.x+boss.w/2);
+                        const pdy = playerObj.y+playerObj.h/2 - (boss.y+boss.h/2);
+                        const pd = Math.sqrt(pdx*pdx+pdy*pdy);
+                        if (pd < 150 && !playerObj.shieldActive) {
+                            playerObj.invincible = true;
+                            setTimeout(()=>{ playerObj.invincible = false; }, 500);
+                        }
+                        showAlert('🌪️ عاصفة امجد!', 1500);
+                    },
+                    () => {
+                        bossEffects.push({ type:'shield', x:boss.x+boss.w/2, y:boss.y+boss.h/2,
+                            alpha:1, time:0 });
+                        showAlert('🛡️ امجد حما حاله!', 1000);
+                    }
+                ];
+            } else if (boss.name === 'صالح') {
+                abilities = [
+                    () => {
+                        for (let i = 0; i < 4; i++) {
+                            const angle = (i / 4) * Math.PI * 2;
+                            bossEffects.push({ type:'barrier', x:playerObj.x+playerObj.w/2 + Math.cos(angle)*80,
+                                y:playerObj.y+playerObj.h/2 + Math.sin(angle)*80, alpha:1, time:0 });
+                        }
+                        showAlert('🔒 صالح حبسك!', 1500);
+                    },
+                    () => {
+                        const dx = playerObj.x - boss.x;
+                        const dy = playerObj.y - boss.y;
+                        const d = Math.sqrt(dx*dx+dy*dy) || 1;
+                        boss.x += (dx/d) * 130;
+                        boss.y += (dy/d) * 130;
+                        bossEffects.push({ type:'fury', x:boss.x+boss.w/2, y:boss.y+boss.h/2,
+                            alpha:1, time:0 });
+                        if (!playerObj.shieldActive) {
+                            playerObj.invincible = true;
+                            setTimeout(()=>{ playerObj.invincible = false; }, 800);
+                        }
+                        showAlert('💢 غضب صالح!', 1500);
+                    },
+                    () => {
+                        bossEffects.push({ type:'lock', x:playerObj.x+playerObj.w/2, y:playerObj.y+playerObj.h/2,
+                            alpha:1, time:0 });
+                        if (!playerObj.shieldActive && !playerObj.invincible) {
+                            playerObj.speed = playerObj.baseSpeed * 0.3;
+                            setTimeout(()=>{ if(!playerObj.speedBoostActive) playerObj.speed = playerObj.baseSpeed; }, 2500);
+                        }
+                        showAlert('🔐 قفل صالح!', 1500);
+                    }
+                ];
+            }
+            
+            const idx = Math.floor(Math.random() * abilities.length);
+            abilities[idx]();
+        }
+
+        function triggerWin() {
+            gameState = 'won';
+            document.getElementById('hud').style.display='none';
+            document.getElementById('bossHUD').style.display='none';
+            document.getElementById('winScreen').style.display='flex';
+            startWinSoundsLoop();
+            requestAnimationFrame(animateWin);
         }
 
         let confettiPieces = [];
         function createConfetti() {
             confettiPieces = [];
-            for (let i = 0; i < 120; i++) {
+            for (let i=0; i<120; i++) {
                 confettiPieces.push({
-                    x: Math.random() * W, y: Math.random() * -H,
-                    w: Math.random() * 10 + 5, h: Math.random() * 10 + 5,
-                    color: ['#FFD700', '#e94560', '#4CAF50', '#2196F3', '#FF9800', '#9C27B0'][Math.floor(Math.random() * 6)],
-                    speedY: Math.random() * 4 + 2, speedX: Math.random() * 4 - 2,
-                    rotation: Math.random() * 360, rotSpeed: Math.random() * 10 - 5
+                    x:Math.random()*W, y:Math.random()*-H,
+                    w:Math.random()*10+5, h:Math.random()*10+5,
+                    color:['#FFD700','#e94560','#4CAF50','#2196F3','#FF9800','#9C27B0'][Math.floor(Math.random()*6)],
+                    speedY:Math.random()*4+2, speedX:Math.random()*4-2,
+                    rotation:Math.random()*360, rotSpeed:Math.random()*10-5
                 });
             }
         }
-
-        function triggerWin() {
-            gameState = 'won';
-            document.getElementById('hud').style.display = 'none';
-            document.getElementById('winScreen').style.display = 'flex';
-            createConfetti();
-            
-            // تشغيل الأصوات بشكل مستمر - ما توقف إلا لما اللاعب يضغط العب مرة ثانية
-            startWinSoundsLoop();
-            
-            requestAnimationFrame(animateWin);
-        }
+        createConfetti();
 
         function animateWin() {
             if (gameState !== 'won') return;
-            const time = Date.now() / 1000;
-            winCtx.clearRect(0, 0, W, H);
+            const time = Date.now()/1000;
+            winCtx.clearRect(0,0,W,H);
 
-            const gradient = winCtx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W/1.5);
-            gradient.addColorStop(0, 'rgba(255, 215, 0, 0.15)');
-            gradient.addColorStop(1, 'rgba(0,0,0,0)');
-            winCtx.fillStyle = gradient;
-            winCtx.fillRect(0, 0, W, H);
+            const g = winCtx.createRadialGradient(W/2,H/2,0,W/2,H/2,W/1.5);
+            g.addColorStop(0,'rgba(255,215,0,0.15)'); g.addColorStop(1,'rgba(0,0,0,0)');
+            winCtx.fillStyle=g; winCtx.fillRect(0,0,W,H);
 
             confettiPieces.forEach(c => {
-                c.y += c.speedY; c.x += c.speedX; c.rotation += c.rotSpeed;
-                if (c.y > H + 20) { c.y = -20; c.x = Math.random() * W; }
-                if (c.x < 0) c.x = W; if (c.x > W) c.x = 0;
-                winCtx.save();
-                winCtx.translate(c.x, c.y);
-                winCtx.rotate(c.rotation * Math.PI / 180);
-                winCtx.fillStyle = c.color;
-                winCtx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
-                winCtx.restore();
+                c.y+=c.speedY; c.x+=c.speedX; c.rotation+=c.rotSpeed;
+                if(c.y>H+20){c.y=-20;c.x=Math.random()*W;}
+                if(c.x<0)c.x=W; if(c.x>W)c.x=0;
+                winCtx.save(); winCtx.translate(c.x,c.y); winCtx.rotate(c.rotation*Math.PI/180);
+                winCtx.fillStyle=c.color; winCtx.fillRect(-c.w/2,-c.h/2,c.w,c.h); winCtx.restore();
             });
 
-            winCtx.fillStyle = '#FFD700';
-            winCtx.font = 'bold 45px Tajawal';
-            winCtx.textAlign = 'center';
-            winCtx.shadowColor = 'rgba(255, 215, 0, 0.8)';
-            winCtx.shadowBlur = 30;
-            winCtx.fillText('🏆 وضاح فاز! 🏆', W/2, 90);
-            winCtx.shadowBlur = 0;
+            winCtx.fillStyle='#FFD700'; winCtx.font='bold 35px Tajawal'; winCtx.textAlign='center';
+            winCtx.shadowColor='rgba(255,215,0,0.8)'; winCtx.shadowBlur=30;
+            winCtx.fillText('🏆 وضاح فاز! هزم كل الزعماء! 🏆', W/2, 80);
+            winCtx.shadowBlur=0;
+            winCtx.fillStyle='#fff'; winCtx.font='bold 18px Tajawal';
+            winCtx.fillText(`المستوى 67 | النقاط: ${playerObj.score}`, W/2, 120);
 
-            winCtx.fillStyle = '#fff';
-            winCtx.font = 'bold 22px Tajawal';
-            winCtx.fillText(`الدجاج: ${playerObj.chickens} | البطيخ: ${playerObj.watermelons} | النقاط: ${playerObj.score}`, W/2, 130);
+            const px=W/2, py=H/2+40;
+            if(charImages.player.complete&&charImages.player.naturalWidth)
+                winCtx.drawImage(charImages.player, px-45,py-55,90,90);
 
-            const px = W / 2, py = H / 2 + 50;
-            if (charImages.player.complete && charImages.player.naturalWidth) {
-                winCtx.drawImage(charImages.player, px - 45, py - 55, 90, 90);
-            }
-
-            const cheerImgs = ['cheer1', 'cheer2', 'cheer3', 'cheer4', 'cheer5', 'cheer6'];
-            const radius = Math.min(W, H) * 0.28;
-
-            cheerImgs.forEach((key, idx) => {
-                const img = charImages[key];
-                if (!img.complete || !img.naturalWidth) return;
-                const angle = (idx / cheerImgs.length) * Math.PI * 2 + time * 0.35;
-                const cx = W / 2 + Math.cos(angle) * radius;
-                const cy = H / 2 + Math.sin(angle) * radius * 0.45 + 40;
-                const bounce = Math.sin(time * 3 + idx) * 18;
-
-                winCtx.save();
-                winCtx.translate(cx, cy + bounce);
-                winCtx.rotate(Math.sin(time * 2 + idx) * 0.15);
-                winCtx.drawImage(img, -35, -35, 70, 70);
-                winCtx.fillStyle = '#FFD700';
-                winCtx.font = '18px serif';
-                winCtx.textAlign = 'center';
-                winCtx.fillText('🎉', 0, -40);
-                winCtx.restore();
+            const cheerImgs=['cheer1','cheer2','cheer3','cheer4','cheer5','cheer6'];
+            const radius=Math.min(W,H)*0.28;
+            cheerImgs.forEach((key,idx)=>{
+                const img=charImages[key];
+                if(!img.complete||!img.naturalWidth) return;
+                const angle=(idx/cheerImgs.length)*Math.PI*2+time*0.35;
+                const cx=W/2+Math.cos(angle)*radius;
+                const cy=H/2+Math.sin(angle)*radius*0.45+40;
+                const bounce=Math.sin(time*3+idx)*18;
+                winCtx.save(); winCtx.translate(cx,cy+bounce); winCtx.rotate(Math.sin(time*2+idx)*0.15);
+                winCtx.drawImage(img,-35,-35,70,70);
+                winCtx.fillStyle='#FFD700'; winCtx.font='18px serif'; winCtx.textAlign='center';
+                winCtx.fillText('🎉',0,-40); winCtx.restore();
             });
 
-            const cheers = ['🎉 وااو!', '🐔 يا وحش!', '🍉 أسطووورة!', '💪 بطل!', '⭐ ضححححححح', '🏆 ملك!'];
-            const randomIdx = Math.floor(time * 2) % cheers.length;
-            const randomCharIdx = Math.floor(time * 1.5) % 6;
-            const ri = charImages[cheerImgs[randomCharIdx]];
-            if (ri.complete && ri.naturalWidth) {
-                const angle = (randomCharIdx / cheerImgs.length) * Math.PI * 2 + time * 0.35;
-                const cx = W / 2 + Math.cos(angle) * radius;
-                const cy = H / 2 + Math.sin(angle) * radius * 0.45 + 40;
-                const bounce = Math.sin(time * 3 + randomCharIdx) * 18;
-                winCtx.fillStyle = 'rgba(255,255,255,0.9)';
-                winCtx.beginPath();
-                winCtx.roundRect(cx - 50, cy + bounce - 80, 100, 28, 8);
-                winCtx.fill();
-                winCtx.fillStyle = '#333';
-                winCtx.font = 'bold 14px Tajawal';
-                winCtx.textAlign = 'center';
-                winCtx.fillText(cheers[randomIdx], cx, cy + bounce - 60);
+            const cheers=['🎉 وااو!','🐔 يا وحش!','🍉 أسطووورة!','💪 بطل!','⭐ ضححححححح','🏆 ملك!'];
+            const rIdx=Math.floor(time*2)%cheers.length;
+            const rCIdx=Math.floor(time*1.5)%6;
+            const ri=charImages[cheerImgs[rCIdx]];
+            if(ri.complete&&ri.naturalWidth){
+                const angle=(rCIdx/cheerImgs.length)*Math.PI*2+time*0.35;
+                const cx=W/2+Math.cos(angle)*radius;
+                const cy=H/2+Math.sin(angle)*radius*0.45+40;
+                const bounce=Math.sin(time*3+rCIdx)*18;
+                winCtx.fillStyle='rgba(255,255,255,0.9)'; winCtx.beginPath();
+                winCtx.roundRect(cx-50,cy+bounce-80,100,28,8); winCtx.fill();
+                winCtx.fillStyle='#333'; winCtx.font='bold 14px Tajawal'; winCtx.textAlign='center';
+                winCtx.fillText(cheers[rIdx],cx,cy+bounce-60);
             }
 
-            if (charImages.guard.complete && charImages.guard.naturalWidth) {
-                winCtx.drawImage(charImages.guard, W - 95, H - 115, 75, 75);
-                winCtx.fillStyle = '#fff';
-                winCtx.font = 'bold 13px Tajawal';
-                winCtx.textAlign = 'center';
-                winCtx.fillText('صالح', W - 58, H - 30);
-            }
-
-            policeArr.forEach((p, idx) => {
-                const pi = charImages[p.img];
-                if (pi.complete && pi.naturalWidth) {
-                    winCtx.globalAlpha = 0.5;
-                    winCtx.drawImage(pi, 40 + idx * 75, H - 115, 65, 65);
-                    winCtx.globalAlpha = 1;
-                    winCtx.fillStyle = '#ff4444';
-                    winCtx.font = 'bold 13px Tajawal';
-                    winCtx.textAlign = 'center';
-                    winCtx.fillText('😢 ' + p.name, 72 + idx * 75, H - 30);
-                }
-            });
-
-            winCtx.fillStyle = 'rgba(233, 69, 96, 0.85)';
-            winCtx.beginPath();
-            winCtx.roundRect(W/2 - 90, H - 70, 180, 48, 24);
-            winCtx.fill();
-            winCtx.fillStyle = '#fff';
-            winCtx.font = 'bold 18px Tajawal';
-            winCtx.textAlign = 'center';
-            winCtx.fillText('🔄 العب مرة ثانية', W/2, H - 38);
+            winCtx.fillStyle='rgba(233,69,96,0.85)'; winCtx.beginPath();
+            winCtx.roundRect(W/2-90,H-70,180,48,24); winCtx.fill();
+            winCtx.fillStyle='#fff'; winCtx.font='bold 18px Tajawal'; winCtx.textAlign='center';
+            winCtx.fillText('🔄 العب مرة ثانية',W/2,H-38);
 
             requestAnimationFrame(animateWin);
         }
 
-        winCanvasEl.addEventListener('click', (e) => {
-            if (gameState === 'won') {
-                gameState = 'start';
-                document.getElementById('winScreen').style.display = 'none';
-                document.getElementById('startScreen').style.display = 'flex';
-                setTimeout(() => { document.getElementById('startScreen').style.opacity = '1'; }, 10);
-                // إيقاف الأصوات لما يرجع للشاشة الرئيسية
+        winCanvasEl.addEventListener('click', ()=>{
+            if(gameState==='won'){
+                gameState='start';
+                document.getElementById('winScreen').style.display='none';
+                document.getElementById('startScreen').style.display='flex';
+                setTimeout(()=>{document.getElementById('startScreen').style.opacity='1';},10);
                 stopWinSoundsLoop();
             }
         });
 
         let lastTime = 0;
-        function gameLoop(timestamp = 0) {
-            if (gameState !== 'playing' && gameState !== 'jailed') {
-                requestAnimationFrame(gameLoop);
-                return;
-            }
-
+        function gameLoop(timestamp=0) {
+            if(gameState!=='playing') { requestAnimationFrame(gameLoop); return; }
+            
             const dt = timestamp - lastTime;
             lastTime = timestamp;
 
-            if (playerJailRespawnTimer > 0) {
-                playerJailRespawnTimer -= dt || 16;
-                if (playerJailRespawnTimer <= 0) playerObj.invincible = false;
+            if(playerJailRespawnTimer>0) {
+                playerJailRespawnTimer -= dt||16;
+                if(playerJailRespawnTimer<=0) playerObj.invincible=false;
             }
 
-            ctx.clearRect(0, 0, W, H);
+            // Update cooldowns
+            if(playerObj.shieldCooldown>0) playerObj.shieldCooldown -= (dt||16)/1000;
+            if(playerObj.speedCooldown>0) playerObj.speedCooldown -= (dt||16)/1000;
+            if(playerObj.absoluteCooldown>0) playerObj.absoluteCooldown -= (dt||16)/1000;
+            if(playerObj.attackHitTimer>0) playerObj.attackHitTimer -= (dt||16)/1000;
+            
+            if(playerObj.shieldActive) {
+                playerObj.shieldTimer -= (dt||16)/1000;
+                if(playerObj.shieldTimer<=0) playerObj.shieldActive=false;
+            }
+            if(playerObj.speedBoostActive) {
+                playerObj.speedTimer -= (dt||16)/1000;
+                if(playerObj.speedTimer<=0) { playerObj.speedBoostActive=false; playerObj.speed=playerObj.baseSpeed; }
+            }
+
+            ctx.clearRect(0,0,W,H);
+            ectx.clearRect(0,0,W,H);
             drawBackground();
 
-            const time = Date.now() / 1000;
+            const time = Date.now()/1000;
 
-            if (gameState === 'playing') {
-                let dx = 0, dy = 0;
-                if (keys['ArrowUp'] || keys['w'] || keys['W'] || mobileDir.up) dy = -1;
-                if (keys['ArrowDown'] || keys['s'] || keys['S'] || mobileDir.down) dy = 1;
-                if (keys['ArrowLeft'] || keys['a'] || keys['A'] || mobileDir.left) { dx = -1; playerObj.facing = 'left'; }
-                if (keys['ArrowRight'] || keys['d'] || keys['D'] || mobileDir.right) { dx = 1; playerObj.facing = 'right'; }
-                if (dx !== 0 && dy !== 0) { dx *= 0.707; dy *= 0.707; }
+            if(!playerObj.stunned) {
+                let dx=0, dy=0;
+                if(keys['ArrowUp']||keys['w']||keys['W']) dy=-1;
+                if(keys['ArrowDown']||keys['s']||keys['S']) dy=1;
+                if(keys['ArrowLeft']||keys['a']||keys['A']) { dx=-1; playerObj.facing='left'; }
+                if(keys['ArrowRight']||keys['d']||keys['D']) { dx=1; playerObj.facing='right'; }
+                
+                if(joystick.active) { dx = joystick.dx; dy = joystick.dy; }
+                if(dx!==0&&dy!==0) { const len=Math.sqrt(dx*dx+dy*dy); dx/=len; dy/=len; }
+                if(dx<0) playerObj.facing='left';
+                if(dx>0) playerObj.facing='right';
 
                 playerObj.x += dx * playerObj.speed;
                 playerObj.y += dy * playerObj.speed;
-                playerObj.x = Math.max(0, Math.min(W - playerObj.w, playerObj.x));
-                playerObj.y = Math.max(0, Math.min(H - playerObj.h, playerObj.y));
+                playerObj.x = Math.max(0, Math.min(W-playerObj.w, playerObj.x));
+                playerObj.y = Math.max(0, Math.min(H-playerObj.h, playerObj.y));
+                if(dx!==0||dy!==0) playerObj.frame+=0.15;
+            }
 
-                if (dx !== 0 || dy !== 0) playerObj.frame += 0.15;
-
+            if(!isBossFight) {
                 items.forEach(item => {
-                    if (item.collected) return;
-                    const bob = Math.sin(time * 2 + item.bobOffset) * 5;
+                    if(item.collected) return;
+                    const bob = Math.sin(time*2+item.bobOffset)*5;
                     
                     ctx.save();
-                    ctx.translate(item.x + item.w/2, item.y + item.h/2 + bob);
-                    ctx.rotate(Math.sin(time + item.bobOffset) * 0.1);
-
-                    if (item.type === 'chicken') {
-                        ctx.fillStyle = '#D2691E';
-                        ctx.beginPath();
-                        ctx.ellipse(0, 0, 16, 13, 0, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.fillStyle = '#8B4513';
-                        ctx.beginPath();
-                        ctx.ellipse(-7, -5, 5, 7, -0.3, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.fillStyle = '#FFD700';
-                        ctx.font = '11px serif';
-                        ctx.fillText('✨', 10, -10);
+                    ctx.translate(item.x+item.w/2, item.y+item.h/2+bob);
+                    ctx.rotate(Math.sin(time+item.bobOffset)*0.1);
+                    
+                    const img = item.type==='chicken' ? itemImages.chicken : itemImages.watermelon;
+                    if(img && img.complete && img.naturalWidth) {
+                        ctx.drawImage(img, -item.w/2, -item.h/2, item.w, item.h);
                     } else {
-                        ctx.fillStyle = '#2E7D32';
-                        ctx.beginPath();
-                        ctx.arc(0, 0, 16, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.fillStyle = '#4CAF50';
-                        ctx.beginPath();
-                        ctx.arc(-2, -3, 9, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.fillStyle = '#F44336';
-                        ctx.beginPath();
-                        ctx.arc(0, 0, 7, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.fillStyle = '#000';
-                        ctx.beginPath();
-                        ctx.arc(-1, -1, 1.5, 0, Math.PI * 2);
-                        ctx.arc(3, 1, 1.5, 0, Math.PI * 2);
-                        ctx.arc(0, 3, 1.5, 0, Math.PI * 2);
-                        ctx.fill();
+                        if(item.type==='chicken') {
+                            ctx.fillStyle='#D2691E'; ctx.beginPath(); ctx.ellipse(0,0,16,13,0,0,Math.PI*2); ctx.fill();
+                        } else {
+                            ctx.fillStyle='#2E7D32'; ctx.beginPath(); ctx.arc(0,0,16,0,Math.PI*2); ctx.fill();
+                            ctx.fillStyle='#F44336'; ctx.beginPath(); ctx.arc(0,0,7,0,Math.PI*2); ctx.fill();
+                        }
                     }
                     ctx.restore();
 
-                    ctx.save();
-                    ctx.globalAlpha = 0.3 + Math.sin(time * 3 + item.bobOffset) * 0.15;
-                    ctx.fillStyle = item.type === 'chicken' ? '#FFD700' : '#4CAF50';
-                    ctx.beginPath();
-                    ctx.arc(item.x + item.w/2, item.y + item.h/2 + bob, 22, 0, Math.PI * 2);
-                    ctx.fill();
+                    ctx.save(); ctx.globalAlpha=0.3+Math.sin(time*3+item.bobOffset)*0.15;
+                    ctx.fillStyle=item.type==='chicken'?'#FFD700':'#4CAF50';
+                    ctx.beginPath(); ctx.arc(item.x+item.w/2, item.y+item.h/2+bob, 22, 0, Math.PI*2); ctx.fill();
                     ctx.restore();
 
-                    if (collides(playerObj, item)) {
+                    if(collides(playerObj, item)) {
                         item.collected = true;
-                        if (item.type === 'chicken') {
-                            playerObj.chickens++; playerObj.score += 10;
-                            playSynthSound('chicken');
-                            showAlert('🐔 سرقت دجاجة بروستد! +10');
-                        } else {
-                            playerObj.watermelons++; playerObj.score += 50;
-                            playSynthSound('watermelon');
-                            showAlert('🍉 بطيخ نادر!! +50');
-                        }
+                        if(item.type==='chicken') { playerObj.chickens++; playerObj.score+=10; playSynthSound('chicken'); }
+                        else { playerObj.watermelons++; playerObj.score+=50; playSynthSound('watermelon'); }
                         updateHUD();
 
-                        if (playerObj.chickens >= 8 || playerObj.watermelons >= 3) {
+                        const cfg = getLevelConfig(currentLevel);
+                        if(playerObj.chickens>=cfg.chickenNeeded || playerObj.watermelons>=cfg.watermelonNeeded) {
                             canEnterWin = true;
-                            showAlert('🏆 الحين تقدر تروح لمنطقة الفوز!', 3500);
                         }
 
-                        setTimeout(() => {
-                            if (gameState === 'playing' || gameState === 'won') {
-                                item.collected = false;
-                                item.x = 80 + Math.random() * (W - 160);
-                                item.y = 80 + Math.random() * (H - 160);
+                        setTimeout(()=>{
+                            if(gameState==='playing') {
+                                item.collected=false;
+                                item.x=80+Math.random()*(W-160);
+                                item.y=80+Math.random()*(H-160);
                             }
-                        }, item.type === 'watermelon' ? 12000 : 7000);
+                        }, item.type==='watermelon'?12000:7000);
                     }
                 });
 
-                drawJailZone(time);
+                drawJailZone();
                 drawWinZone(time);
 
                 policeArr.forEach(cop => {
+                    if(!cop.active) return;
+                    
                     const targetX = playerObj.x - cop.w/2 + playerObj.w/4;
                     const targetY = playerObj.y - cop.h/2 + playerObj.h/4;
                     const cdx = targetX - cop.x;
                     const cdy = targetY - cop.y;
-                    const dist = Math.sqrt(cdx * cdx + cdy * cdy) || 1;
+                    const dist = Math.sqrt(cdx*cdx+cdy*cdy) || 1;
+                    cop.x += (cdx/dist) * cop.speed;
+                    cop.y += (cdy/dist) * cop.speed;
+                    cop.x = Math.max(0, Math.min(W-cop.w, cop.x));
+                    cop.y = Math.max(0, Math.min(H-cop.h, cop.y));
 
-                    cop.x += (cdx / dist) * cop.speed;
-                    cop.y += (cdy / dist) * cop.speed;
-                    cop.x = Math.max(0, Math.min(W - cop.w, cop.x));
-                    cop.y = Math.max(0, Math.min(H - cop.h, cop.y));
-
-                    if (!playerObj.invincible && collides(playerObj, cop)) {
-                        gameState = 'jailed';
-                        playSynthSound('caught');
-                        showAlert(`👮‍♂️ ${cop.name} أمسكك!`);
-                        setTimeout(() => {
-                            document.getElementById('jailScreen').style.display = 'flex';
-                        }, 400);
-                    }
-                });
-
-                policeArr.forEach(cop => {
                     ctx.save();
-                    ctx.globalAlpha = 0.3 + Math.sin(time * 6) * 0.2;
-                    ctx.fillStyle = '#ff0000';
-                    ctx.beginPath();
-                    ctx.arc(cop.x + cop.w/2 - 4, cop.y - 4, 6, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.globalAlpha = 0.3 + Math.cos(time * 6) * 0.2;
-                    ctx.fillStyle = '#0044ff';
-                    ctx.beginPath();
-                    ctx.arc(cop.x + cop.w/2 + 6, cop.y - 4, 6, 0, Math.PI * 2);
-                    ctx.fill();
+                    ctx.globalAlpha=0.3+Math.sin(time*6)*0.2; ctx.fillStyle='#ff0000';
+                    ctx.beginPath(); ctx.arc(cop.x+cop.w/2-4, cop.y-4, 6, 0, Math.PI*2); ctx.fill();
+                    ctx.globalAlpha=0.3+Math.cos(time*6)*0.2; ctx.fillStyle='#0044ff';
+                    ctx.beginPath(); ctx.arc(cop.x+cop.w/2+6, cop.y-4, 6, 0, Math.PI*2); ctx.fill();
                     ctx.restore();
 
                     const img = charImages[cop.img];
-                    if (img.complete && img.naturalWidth) {
+                    if(img && img.complete && img.naturalWidth) {
                         ctx.drawImage(img, cop.x, cop.y, cop.w, cop.h);
                     } else {
-                        ctx.fillStyle = '#1565C0';
-                        ctx.fillRect(cop.x, cop.y, cop.w, cop.h);
-                        ctx.fillStyle = '#fff';
-                        ctx.font = '11px Tajawal';
-                        ctx.textAlign = 'center';
-                        ctx.fillText(cop.name, cop.x + cop.w/2, cop.y + cop.h/2 + 4);
+                        ctx.fillStyle='#1565C0'; ctx.fillRect(cop.x, cop.y, cop.w, cop.h);
                     }
 
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 11px Tajawal';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(cop.name, cop.x + cop.w/2, cop.y - 10);
+                    ctx.fillStyle='#fff'; ctx.font='bold 11px Tajawal'; ctx.textAlign='center';
+                    ctx.fillText(cop.name, cop.x+cop.w/2, cop.y-10);
+
+                    if(!playerObj.invincible && !playerObj.shieldActive && collides(playerObj, cop)) {
+                        gameState = 'jailed';
+                        playSynthSound('caught');
+                        showAlert(`👮‍♂️ ${cop.name} أمسكك!`);
+                        setTimeout(()=>{ document.getElementById('jailScreen').style.display='flex'; }, 400);
+                    }
                 });
 
-                if (canEnterWin && collides(playerObj, window._WIN_ZONE)) {
-                    triggerWin();
+                const gImg = charImages.guard;
+                if(gImg && gImg.complete && gImg.naturalWidth) {
+                    ctx.drawImage(gImg, jailZone.x+jailZone.w/2-28, jailZone.y+jailZone.h/2-32, 56, 56);
+                }
+
+                if(canEnterWin && collides(playerObj, winZone)) {
+                    if(currentLevel < maxLevel) {
+                        currentLevel++;
+                        canEnterWin = false;
+                        playerObj.chickens = 0;
+                        playerObj.watermelons = 0;
+                        
+                        if(currentLevel === SHIELD_UNLOCK_LEVEL) {
+                            showAlert(`🛡️ مهارة درع البطيخ فتحت!`, 3000);
+                            playSynthSound('unlock');
+                        }
+                        if(currentLevel === SPEED_UNLOCK_LEVEL) {
+                            showAlert(`💨 مهارة سرعة الدجاج فتحت!`, 3000);
+                            playSynthSound('unlock');
+                        }
+                        if(currentLevel === ABSOLUTE_UNLOCK_LEVEL) {
+                            showAlert(`⚡ البروستد المطلق فتح!`, 3000);
+                            playSynthSound('unlock');
+                        }
+                        
+                        showAlert(`🎉 المستوى ${currentLevel}!`, 2500);
+                        setupPositions();
+                        updateHUD();
+                    } else {
+                        isBossFight = true;
+                        bossPhase = 1;
+                        policeArr[0].hp = 80;
+                        policeArr[0].maxHp = 80;
+                        policeArr[0].active = true;
+                        policeArr[1].active = false;
+                        policeArr[1].hp = 90;
+                        policeArr[1].maxHp = 90;
+                        guardObj.active = false;
+                        guardObj.hp = 110;
+                        guardObj.maxHp = 110;
+                        
+                        // Reset positions for boss fight
+                        policeArr[0].x = W/2 + 80;
+                        policeArr[0].y = H/3;
+                        
+                        document.getElementById('bossHUD').style.display='flex';
+                        document.getElementById('suhailBar').style.display='block';
+                        document.getElementById('amjadBar').style.display='none';
+                        document.getElementById('salehBar').style.display='none';
+                        showAlert('⚔️ المعركة الأخيرة! ادهس سهيل أو استخدم المهارات! ⚔️', 3500);
+                        playSynthSound('alert');
+                    }
+                }
+            } else {
+                // Boss fight
+                drawBossFightBG(time);
+
+                if(bossPhase===1 && policeArr[0].active) bossAI(policeArr[0], dt);
+                if(bossPhase===2 && policeArr[1].active) bossAI(policeArr[1], dt);
+                if(bossPhase===3) {
+                    if(policeArr[0].active) bossAI(policeArr[0], dt);
+                    if(policeArr[1].active) bossAI(policeArr[1], dt);
+                    if(guardObj.active) bossAI(guardObj, dt);
+                }
+
+                updateBossBars();
+
+                // Draw active bosses
+                const activeBosses = [];
+                if(bossPhase>=1 && policeArr[0].active) activeBosses.push(policeArr[0]);
+                if(bossPhase>=2 && policeArr[1].active) activeBosses.push(policeArr[1]);
+                if(bossPhase>=3 && guardObj.active) activeBosses.push(guardObj);
+
+                activeBosses.forEach(boss => {
+                    const img = charImages[boss.img];
+                    if(img && img.complete && img.naturalWidth) {
+                        ctx.drawImage(img, boss.x, boss.y, boss.w, boss.h);
+                    }
+                    
+                    ctx.save();
+                    ctx.globalAlpha=0.3+Math.sin(time*4)*0.2;
+                    ctx.strokeStyle = boss.name==='سهيل'?'#42A5F5':boss.name==='امجد'?'#EC407A':'#FF7043';
+                    ctx.lineWidth=3;
+                    ctx.beginPath();
+                    ctx.arc(boss.x+boss.w/2, boss.y+boss.h/2, boss.w/2+8, 0, Math.PI*2);
+                    ctx.stroke();
+                    ctx.restore();
+
+                    // HP bar above boss
+                    const hpPercent = boss.hp / boss.maxHp;
+                    ctx.fillStyle = '#333';
+                    ctx.fillRect(boss.x, boss.y - 20, boss.w, 8);
+                    ctx.fillStyle = hpPercent > 0.5 ? '#4CAF50' : hpPercent > 0.25 ? '#FF9800' : '#f44336';
+                    ctx.fillRect(boss.x, boss.y - 20, boss.w * hpPercent, 8);
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(boss.x, boss.y - 20, boss.w, 8);
+
+                    ctx.fillStyle='#fff'; ctx.font='bold 12px Tajawal'; ctx.textAlign='center';
+                    ctx.fillText(boss.name, boss.x+boss.w/2, boss.y-25);
+                });
+            }
+
+            // Draw player
+            const pimg = charImages.player;
+            const bounce = Math.sin(playerObj.frame)*3;
+            ctx.save();
+            if(playerObj.invincible) ctx.globalAlpha=0.5+Math.sin(time*10)*0.3;
+            
+            if(pimg && pimg.complete && pimg.naturalWidth) {
+                ctx.drawImage(pimg, playerObj.x, playerObj.y+bounce, playerObj.w, playerObj.h);
+            } else {
+                ctx.fillStyle='#FFD700';
+                ctx.beginPath(); ctx.arc(playerObj.x+playerObj.w/2, playerObj.y+playerObj.h/2, playerObj.w/2, 0, Math.PI*2);
+                ctx.fill();
+                ctx.fillStyle='#333'; ctx.font='bold 11px Tajawal'; ctx.textAlign='center';
+                ctx.fillText('وضاح', playerObj.x+playerObj.w/2, playerObj.y+playerObj.h/2+4);
+            }
+
+            if(playerObj.shieldActive) {
+                ctx.strokeStyle='rgba(76,175,80,0.8)'; ctx.lineWidth=3;
+                ctx.beginPath(); ctx.arc(playerObj.x+playerObj.w/2, playerObj.y+playerObj.h/2, playerObj.w/2+10, 0, Math.PI*2);
+                ctx.stroke();
+            }
+
+            if(playerObj.speedBoostActive) {
+                ctx.strokeStyle='rgba(255,215,0,0.6)'; ctx.lineWidth=2;
+                for(let i=0; i<3; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(playerObj.x-10-i*8, playerObj.y+playerObj.h/2-5);
+                    ctx.lineTo(playerObj.x-5-i*8, playerObj.y+playerObj.h/2);
+                    ctx.lineTo(playerObj.x-10-i*8, playerObj.y+playerObj.h/2+5);
+                    ctx.stroke();
                 }
             }
 
-            const pimg = charImages.player;
-            const bounce = Math.sin(playerObj.frame) * 3;
-            
-            ctx.save();
-            if (playerObj.invincible) {
-                ctx.globalAlpha = 0.5 + Math.sin(time * 10) * 0.3;
-            }
-            
-            if (pimg.complete && pimg.naturalWidth) {
-                ctx.drawImage(pimg, playerObj.x, playerObj.y + bounce, playerObj.w, playerObj.h);
-            } else {
-                ctx.fillStyle = '#FFD700';
-                ctx.beginPath();
-                ctx.arc(playerObj.x + playerObj.w/2, playerObj.y + playerObj.h/2, playerObj.w/2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#333';
-                ctx.font = 'bold 11px Tajawal';
-                ctx.textAlign = 'center';
-                ctx.fillText('وضاح', playerObj.x + playerObj.w/2, playerObj.y + playerObj.h/2 + 4);
-            }
-            
-            if (playerObj.invincible) {
-                ctx.strokeStyle = '#4CAF50';
+            // Attack indicator during boss fight
+            if(isBossFight && playerObj.attackHitTimer <= 0) {
+                ctx.strokeStyle = 'rgba(255,215,0,0.4)';
                 ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
                 ctx.beginPath();
-                ctx.arc(playerObj.x + playerObj.w/2, playerObj.y + playerObj.h/2, playerObj.w/2 + 5, 0, Math.PI * 2);
+                ctx.arc(playerObj.x+playerObj.w/2, playerObj.y+playerObj.h/2, 65, 0, Math.PI*2);
                 ctx.stroke();
+                ctx.setLineDash([]);
             }
             ctx.restore();
 
-            ctx.fillStyle = playerObj.invincible ? '#4CAF50' : '#FFD700';
-            ctx.font = 'bold 12px Tajawal';
-            ctx.textAlign = 'center';
-            ctx.fillText('وضاح', playerObj.x + playerObj.w/2, playerObj.y - 6);
+            ctx.fillStyle = playerObj.invincible?'#4CAF50':'#FFD700';
+            ctx.font='bold 12px Tajawal'; ctx.textAlign='center';
+            ctx.fillText('وضاح', playerObj.x+playerObj.w/2, playerObj.y-6);
 
-            if (canEnterWin && gameState === 'playing') {
-                const wz = window._WIN_ZONE;
-                const angle = Math.atan2(wz.y + wz.h/2 - playerObj.y, wz.x + wz.w/2 - playerObj.x);
-                const arrowX = playerObj.x + playerObj.w/2 + Math.cos(angle) * 45;
-                const arrowY = playerObj.y + playerObj.h/2 + Math.sin(angle) * 45;
+            // Boss fight hints
+            if(isBossFight) {
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.font = '12px Tajawal';
+                ctx.textAlign = 'center';
+                ctx.fillText('💡 ادهس الزعيم أو اضغط Space أو استخدم ⚡', W/2, H - 55);
+            }
+
+            if(currentLevel === 67 && !isBossFight && !canEnterWin) {
                 ctx.save();
-                ctx.globalAlpha = 0.6 + Math.sin(time * 4) * 0.3;
                 ctx.fillStyle = '#FFD700';
-                ctx.beginPath();
-                ctx.moveTo(arrowX, arrowY - 7);
-                ctx.lineTo(arrowX + 9, arrowY);
-                ctx.lineTo(arrowX, arrowY + 7);
-                ctx.closePath();
-                ctx.fill();
+                ctx.font = 'bold 16px Tajawal';
+                ctx.textAlign = 'center';
+                ctx.shadowColor = 'rgba(255,215,0,0.8)';
+                ctx.shadowBlur = 20;
+                ctx.fillText('🔥 المستوى الأخير! اجمع الباقي وروح لمنطقة الفوز! 🔥', W/2, H - 55);
+                ctx.shadowBlur = 0;
                 ctx.restore();
             }
 
-            if (!canEnterWin) {
-                ctx.fillStyle = 'rgba(255,255,255,0.4)';
-                ctx.font = '11px Tajawal';
-                ctx.textAlign = 'center';
-                const needed = Math.max(0, 8 - playerObj.chickens);
-                const wmNeeded = Math.max(0, 3 - playerObj.watermelons);
-                ctx.fillText(`باقي ${needed} دجاجة أو ${wmNeeded} بطيخة لمنطقة الفوز`, W/2, H - 18);
+            if(canEnterWin && !isBossFight) {
+                const angle = Math.atan2(winZone.y+winZone.h/2-playerObj.y, winZone.x+winZone.w/2-playerObj.x);
+                const arrowX = playerObj.x+playerObj.w/2+Math.cos(angle)*45;
+                const arrowY = playerObj.y+playerObj.h/2+Math.sin(angle)*45;
+                ctx.save(); ctx.globalAlpha=0.6+Math.sin(time*4)*0.3;
+                ctx.fillStyle='#FFD700';
+                ctx.beginPath(); ctx.moveTo(arrowX,arrowY-7); ctx.lineTo(arrowX+9,arrowY); ctx.lineTo(arrowX,arrowY+7); ctx.closePath(); ctx.fill();
+                ctx.restore();
             }
 
+            drawBossEffects(time);
+
+            // Draw virtual joystick
+            if(joystickActiveTouch) {
+                if(joystick.active) {
+                    ctx.save();
+                    ctx.globalAlpha = 0.3;
+                    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                    ctx.beginPath();
+                    ctx.arc(joystickDrawX, joystickDrawY, joystick.maxDist, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.globalAlpha = 0.6;
+                    ctx.fillStyle = 'rgba(255,215,0,0.5)';
+                    ctx.beginPath();
+                    ctx.arc(joystickDrawX + joystick.dx * joystick.maxDist, joystickDrawY + joystick.dy * joystick.maxDist, 20, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            if(!canEnterWin && !isBossFight) {
+                const cfg = getLevelConfig(currentLevel);
+                const needed = Math.max(0, cfg.chickenNeeded - playerObj.chickens);
+                const wmNeeded = Math.max(0, cfg.watermelonNeeded - playerObj.watermelons);
+                ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='11px Tajawal'; ctx.textAlign='center';
+                ctx.fillText(`باقي ${needed} دجاجة أو ${wmNeeded} بطيخة للمستوى ${currentLevel}`, W/2, H-15);
+            }
+
+            updateAbilityButtonUI();
             drawMinimap(time);
             requestAnimationFrame(gameLoop);
         }
 
         function drawBackground() {
-            ctx.fillStyle = '#2a2a2a';
-            ctx.fillRect(0, 0, W, H);
-
-            ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-            ctx.lineWidth = 1;
-            for (let x = 0; x < W; x += 50) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-            }
-            for (let y = 0; y < H; y += 50) {
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-            }
-
-            ctx.fillStyle = '#3a3a3a';
-            ctx.fillRect(W/2 - 28, 0, 56, H);
-            ctx.fillRect(0, H/2 - 28, W, 56);
-
-            ctx.strokeStyle = '#FFD700';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([18, 18]);
-            ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+            ctx.fillStyle='#2a2a2a'; ctx.fillRect(0,0,W,H);
+            ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1;
+            for(let x=0;x<W;x+=50) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+            for(let y=0;y<H;y+=50) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+            ctx.fillStyle='#3a3a3a'; ctx.fillRect(W/2-28,0,56,H); ctx.fillRect(0,H/2-28,W,56);
+            ctx.strokeStyle='#FFD700'; ctx.lineWidth=2; ctx.setLineDash([18,18]);
+            ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
             ctx.setLineDash([]);
 
             const bldgs = [
-                { x: 25, y: 25, w: 90, h: 75, color: '#4a4a5a' },
-                { x: W - 115, y: 25, w: 90, h: 75, color: '#4a4a5a' },
-                { x: 25, y: H - 100, w: 90, h: 75, color: '#4a4a5a' },
-                { x: W - 280, y: H - 100, w: 90, h: 75, color: '#4a4a5a' },
+                {x:25,y:25,w:90,h:75,color:'#4a4a5a'}, {x:W-115,y:25,w:90,h:75,color:'#4a4a5a'},
+                {x:25,y:H-100,w:90,h:75,color:'#4a4a5a'}, {x:W-280,y:H-100,w:90,h:75,color:'#4a4a5a'},
             ];
             bldgs.forEach(b => {
-                ctx.fillStyle = b.color;
-                ctx.fillRect(b.x, b.y, b.w, b.h);
-                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(b.x, b.y, b.w, b.h);
-                ctx.fillStyle = 'rgba(255,255,200,0.25)';
-                for (let wx = b.x + 8; wx < b.x + b.w - 12; wx += 22) {
-                    for (let wy = b.y + 8; wy < b.y + b.h - 12; wy += 22) {
-                        ctx.fillRect(wx, wy, 10, 10);
-                    }
+                ctx.fillStyle=b.color; ctx.fillRect(b.x,b.y,b.w,b.h);
+                ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1; ctx.strokeRect(b.x,b.y,b.w,b.h);
+                ctx.fillStyle='rgba(255,255,200,0.25)';
+                for(let wx=b.x+8;wx<b.x+b.w-12;wx+=22) {
+                    for(let wy=b.y+8;wy<b.y+b.h-12;wy+=22) { ctx.fillRect(wx,wy,10,10); }
                 }
             });
         }
 
-        function drawJailZone(time) {
-            const jz = window._JAIL_ZONE;
+        function drawBossFightBG(time) {
+            ctx.fillStyle='#1a0a0a'; ctx.fillRect(0,0,W,H);
+            ctx.strokeStyle='#ff4444'; ctx.lineWidth=3;
+            ctx.beginPath(); ctx.arc(W/2, H/2, Math.min(W,H)*0.4, 0, Math.PI*2); ctx.stroke();
+            for(let i=0; i<3; i++) {
+                ctx.save();
+                ctx.globalAlpha = 0.1 + Math.sin(time*2+i)*0.05;
+                ctx.strokeStyle = i===0?'#42A5F5':i===1?'#EC407A':'#FF7043';
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(W/2, H/2, Math.min(W,H)*0.3+i*30, 0, Math.PI*2); ctx.stroke();
+                ctx.restore();
+            }
+            ctx.strokeStyle='rgba(255,255,255,0.03)'; ctx.lineWidth=1;
+            for(let x=0;x<W;x+=40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+            for(let y=0;y<H;y+=40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+        }
+
+        function drawBossEffects(time) {
+            for (let idx = bossEffects.length - 1; idx >= 0; idx--) {
+                const effect = bossEffects[idx];
+                effect.time += 0.016;
+                effect.alpha -= 0.02;
+                
+                if(effect.alpha <= 0) { bossEffects.splice(idx, 1); continue; }
+                
+                ectx.save();
+                ectx.globalAlpha = effect.alpha;
+                
+                switch(effect.type) {
+                    case 'absolute':
+                        effect.radius += 8;
+                        if(effect.radius > effect.maxRadius) effect.radius = effect.maxRadius;
+                        const absGrad = ectx.createRadialGradient(effect.x, effect.y, 0, effect.x, effect.y, effect.radius);
+                        absGrad.addColorStop(0, 'rgba(255,215,0,0.8)');
+                        absGrad.addColorStop(0.5, 'rgba(255,165,0,0.4)');
+                        absGrad.addColorStop(1, 'rgba(255,215,0,0)');
+                        ectx.fillStyle = absGrad;
+                        ectx.beginPath(); ectx.arc(effect.x, effect.y, effect.radius, 0, Math.PI*2); ectx.fill();
+                        ectx.fillStyle = '#FFD700'; ectx.font = 'bold 18px Tajawal'; ectx.textAlign = 'center';
+                        ectx.fillText('⚡ البروستد المطلق ⚡', effect.x, effect.y - effect.radius - 10);
+                        break;
+                    case 'playerhit':
+                        // Damage number popup
+                        ectx.fillStyle = '#FF0000';
+                        ectx.font = 'bold 28px Tajawal';
+                        ectx.textAlign = 'center';
+                        ectx.shadowColor = 'rgba(255,0,0,0.8)';
+                        ectx.shadowBlur = 15;
+                        ectx.fillText(`-${effect.damage}`, effect.x, effect.y - effect.time * 50);
+                        ectx.shadowBlur = 0;
+                        
+                        // Hit flash
+                        ectx.fillStyle = 'rgba(255,255,255,0.3)';
+                        ectx.beginPath();
+                        ectx.arc(effect.x, effect.y, 20 + effect.time * 30, 0, Math.PI*2);
+                        ectx.fill();
+                        break;
+                    case 'dash':
+                        ectx.strokeStyle = '#42A5F5'; ectx.lineWidth = 4;
+                        ectx.beginPath(); ectx.moveTo(effect.x, effect.y);
+                        ectx.lineTo(effect.targetX, effect.targetY); ectx.stroke();
+                        ectx.fillStyle = '#42A5F5';
+                        ectx.beginPath(); ectx.arc(effect.targetX, effect.targetY, 15, 0, Math.PI*2); ectx.fill();
+                        break;
+                    case 'net':
+                        ectx.strokeStyle = '#888'; ectx.lineWidth = 2;
+                        for(let i=-3; i<=3; i++) {
+                            ectx.beginPath(); ectx.moveTo(effect.x-30+i*10, effect.y-30); ectx.lineTo(effect.x-30+i*10, effect.y+30); ectx.stroke();
+                            ectx.beginPath(); ectx.moveTo(effect.x-30, effect.y-30+i*10); ectx.lineTo(effect.x+30, effect.y-30+i*10); ectx.stroke();
+                        }
+                        break;
+                    case 'stun':
+                        ectx.fillStyle = '#FFD700'; ectx.font = 'bold 24px serif'; ectx.textAlign = 'center';
+                        for(let i=0; i<3; i++) {
+                            ectx.fillText('⭐', effect.x - 20 + i*20, effect.y - 25 + Math.sin(time*5+i)*5);
+                        }
+                        break;
+                    case 'storm':
+                        effect.radius += 5;
+                        if(effect.radius > effect.maxRadius) effect.radius = effect.maxRadius;
+                        ectx.strokeStyle = '#EC407A'; ectx.lineWidth = 3;
+                        ectx.beginPath(); ectx.arc(effect.x, effect.y, effect.radius, 0, Math.PI*2); ectx.stroke();
+                        for(let i=0; i<6; i++) {
+                            const angle = (i/6)*Math.PI*2 + time*3;
+                            const x1 = effect.x + Math.cos(angle)*effect.radius*0.5;
+                            const y1 = effect.y + Math.sin(angle)*effect.radius*0.5;
+                            const x2 = effect.x + Math.cos(angle)*effect.radius;
+                            const y2 = effect.y + Math.sin(angle)*effect.radius;
+                            ectx.strokeStyle = '#FF4081'; ectx.lineWidth = 2;
+                            ectx.beginPath(); ectx.moveTo(x1,y1); ectx.lineTo(x2,y2); ectx.stroke();
+                        }
+                        break;
+                    case 'kick':
+                        effect.x += effect.dx; effect.y += effect.dy;
+                        ectx.fillStyle = '#EC407A';
+                        ectx.beginPath(); ectx.arc(effect.x, effect.y, effect.radius, 0, Math.PI*2); ectx.fill();
+                        ectx.fillStyle = '#fff'; ectx.font = 'bold 16px serif'; ectx.textAlign = 'center';
+                        ectx.fillText('🦶', effect.x, effect.y+6);
+                        const kdx = effect.x - (playerObj.x+playerObj.w/2);
+                        const kdy = effect.y - (playerObj.y+playerObj.h/2);
+                        if(Math.sqrt(kdx*kdx+kdy*kdy) < 30 && !playerObj.shieldActive) {
+                            playerObj.invincible = true;
+                            setTimeout(()=>{ playerObj.invincible = false; }, 500);
+                        }
+                        break;
+                    case 'shield':
+                        ectx.strokeStyle = '#42A5F5'; ectx.lineWidth = 3;
+                        ectx.beginPath(); ectx.arc(effect.x, effect.y, 35, 0, Math.PI*2); ectx.stroke();
+                        ectx.strokeStyle = '#90CAF9'; ectx.lineWidth = 1;
+                        ectx.beginPath(); ectx.arc(effect.x, effect.y, 25, 0, Math.PI*2); ectx.stroke();
+                        break;
+                    case 'barrier':
+                        ectx.strokeStyle = '#FF7043'; ectx.lineWidth = 3;
+                        ectx.beginPath(); ectx.arc(effect.x, effect.y, 25, 0, Math.PI*2); ectx.stroke();
+                        ectx.fillStyle = '#FF7043'; ectx.font = '18px serif'; ectx.textAlign = 'center';
+                        ectx.fillText('🔒', effect.x, effect.y+6);
+                        break;
+                    case 'fury':
+                        ectx.fillStyle = '#FF5722';
+                        for(let i=0; i<8; i++) {
+                            const angle = (i/8)*Math.PI*2 + time*5;
+                            const r = 30 + Math.sin(time*10+i)*15;
+                            ectx.beginPath();
+                            ectx.arc(effect.x + Math.cos(angle)*r, effect.y + Math.sin(angle)*r, 8, 0, Math.PI*2);
+                            ectx.fill();
+                        }
+                        break;
+                    case 'lock':
+                        ectx.fillStyle = '#FF7043'; ectx.font = 'bold 30px serif'; ectx.textAlign = 'center';
+                        ectx.fillText('🔐', effect.x, effect.y+10);
+                        break;
+                    case 'defeat':
+                        effect.radius = (effect.time * 50);
+                        const defGrad = ectx.createRadialGradient(effect.x, effect.y, 0, effect.x, effect.y, effect.radius);
+                        defGrad.addColorStop(0, 'rgba(255,255,255,0.8)');
+                        defGrad.addColorStop(0.5, 'rgba(255,215,0,0.4)');
+                        defGrad.addColorStop(1, 'rgba(255,0,0,0)');
+                        ectx.fillStyle = defGrad;
+                        ectx.beginPath(); ectx.arc(effect.x, effect.y, effect.radius, 0, Math.PI*2); ectx.fill();
+                        ectx.fillStyle = '#FFD700'; ectx.font = 'bold 20px Tajawal'; ectx.textAlign = 'center';
+                        ectx.fillText('💥 هزيمة!', effect.x, effect.y - effect.radius - 10);
+                        break;
+                }
+                ectx.restore();
+            }
+        }
+
+        function drawJailZone() {
             ctx.save();
-            ctx.strokeStyle = '#ff4444';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([8, 4]);
-            ctx.strokeRect(jz.x, jz.y, jz.w, jz.h);
+            ctx.strokeStyle='#ff4444'; ctx.lineWidth=2; ctx.setLineDash([8,4]);
+            ctx.strokeRect(jailZone.x, jailZone.y, jailZone.w, jailZone.h);
             ctx.setLineDash([]);
-            ctx.fillStyle = 'rgba(255, 68, 68, 0.08)';
-            ctx.fillRect(jz.x, jz.y, jz.w, jz.h);
-
-            ctx.strokeStyle = '#888';
-            ctx.lineWidth = 2;
-            for (let bx = jz.x + 18; bx < jz.x + jz.w; bx += 22) {
-                ctx.beginPath(); ctx.moveTo(bx, jz.y); ctx.lineTo(bx, jz.y + jz.h); ctx.stroke();
+            ctx.fillStyle='rgba(255,68,68,0.08)'; ctx.fillRect(jailZone.x, jailZone.y, jailZone.w, jailZone.h);
+            ctx.strokeStyle='#888'; ctx.lineWidth=2;
+            for(let bx=jailZone.x+18; bx<jailZone.x+jailZone.w; bx+=22) {
+                ctx.beginPath(); ctx.moveTo(bx, jailZone.y); ctx.lineTo(bx, jailZone.y+jailZone.h); ctx.stroke();
             }
-
-            ctx.fillStyle = '#ff4444';
-            ctx.font = 'bold 13px Tajawal';
-            ctx.textAlign = 'center';
-            ctx.fillText('🔒 السجن', jz.x + jz.w/2, jz.y - 4);
-
-            const guardImg = charImages.guard;
-            if (guardImg.complete && guardImg.naturalWidth) {
-                ctx.drawImage(guardImg, jz.x + jz.w/2 - 28, jz.y + jz.h/2 - 32, 56, 56);
-            }
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 10px Tajawal';
-            ctx.fillText('صالح', jz.x + jz.w/2, jz.y + jz.h + 14);
+            ctx.fillStyle='#ff4444'; ctx.font='bold 13px Tajawal'; ctx.textAlign='center';
+            ctx.fillText('🔒 السجن', jailZone.x+jailZone.w/2, jailZone.y-4);
+            ctx.fillStyle='#fff'; ctx.font='bold 10px Tajawal'; ctx.fillText('صالح', jailZone.x+jailZone.w/2, jailZone.y+jailZone.h+14);
             ctx.restore();
 
-            if (gameState === 'playing' && collides(playerObj, jz)) {
-                const cx = jz.x + jz.w/2;
-                const cy = jz.y + jz.h/2;
-                const pushX = playerObj.x - cx;
-                const pushY = playerObj.y - cy;
-                const pushDist = Math.sqrt(pushX*pushX + pushY*pushY) || 1;
-                playerObj.x += (pushX/pushDist) * 4;
-                playerObj.y += (pushY/pushDist) * 4;
+            if(gameState==='playing' && collides(playerObj, jailZone)) {
+                const cx=jailZone.x+jailZone.w/2, cy=jailZone.y+jailZone.h/2;
+                const px=playerObj.x-cx, py=playerObj.y-cy;
+                const d=Math.sqrt(px*px+py*py)||1;
+                playerObj.x+=(px/d)*4; playerObj.y+=(py/d)*4;
             }
         }
 
         function drawWinZone(time) {
-            const wz = window._WIN_ZONE;
             ctx.save();
-
-            if (canEnterWin) {
-                const glowAlpha = 0.3 + Math.sin(time * 3) * 0.2;
-                ctx.fillStyle = `rgba(255, 215, 0, ${glowAlpha})`;
-                ctx.fillRect(wz.x, wz.y, wz.w, wz.h);
-                ctx.strokeStyle = '#FFD700';
-                ctx.lineWidth = 3;
-                ctx.setLineDash([12, 8]);
-                ctx.strokeRect(wz.x, wz.y, wz.w, wz.h);
-                ctx.setLineDash([]);
-
-                for (let i = 0; i < 6; i++) {
-                    const px = wz.x + Math.random() * wz.w;
-                    const py = wz.y + Math.random() * wz.h;
-                    ctx.fillStyle = `rgba(255, 215, 0, ${0.3 + Math.random() * 0.4})`;
-                    ctx.beginPath();
-                    ctx.arc(px, py, 2, 0, Math.PI * 2);
-                    ctx.fill();
-                }
+            if(canEnterWin) {
+                const glowAlpha = 0.3+Math.sin(time*3)*0.2;
+                ctx.fillStyle=`rgba(255,215,0,${glowAlpha})`;
+                ctx.fillRect(winZone.x, winZone.y, winZone.w, winZone.h);
+                ctx.strokeStyle='#FFD700'; ctx.lineWidth=3; ctx.setLineDash([12,8]);
+                ctx.strokeRect(winZone.x, winZone.y, winZone.w, winZone.h); ctx.setLineDash([]);
             } else {
-                ctx.strokeStyle = 'rgba(255, 215, 0, 0.15)';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([8, 8]);
-                ctx.strokeRect(wz.x, wz.y, wz.w, wz.h);
-                ctx.setLineDash([]);
+                ctx.strokeStyle='rgba(255,215,0,0.15)'; ctx.lineWidth=2; ctx.setLineDash([8,8]);
+                ctx.strokeRect(winZone.x, winZone.y, winZone.w, winZone.h); ctx.setLineDash([]);
             }
-
-            ctx.fillStyle = canEnterWin ? '#FFD700' : 'rgba(255,255,255,0.3)';
-            ctx.font = '22px serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('🏆', wz.x + wz.w/2, wz.y + wz.h/2 + 8);
-
-            ctx.fillStyle = canEnterWin ? '#FFD700' : 'rgba(255,255,255,0.3)';
-            ctx.font = `bold ${canEnterWin ? 15 : 12}px Tajawal`;
-            ctx.fillText(canEnterWin ? 'منطقة الفوز!' : 'منطقة الفوز', wz.x + wz.w/2, wz.y + wz.h + 20);
+            ctx.fillStyle=canEnterWin?'#FFD700':'rgba(255,255,255,0.3)';
+            ctx.font='22px serif'; ctx.textAlign='center';
+            ctx.fillText('🏆', winZone.x+winZone.w/2, winZone.y+winZone.h/2+8);
+            ctx.fillStyle=canEnterWin?'#FFD700':'rgba(255,255,255,0.3)';
+            ctx.font=`bold ${canEnterWin?15:12}px Tajawal`;
+            ctx.fillText(canEnterWin?'منطقة الفوز!':'منطقة الفوز', winZone.x+winZone.w/2, winZone.y+winZone.h+20);
             ctx.restore();
         }
 
         function drawMinimap(time) {
-            const mmW = 140, mmH = 140, mmX = 12, mmY = H - 155;
-
+            const mmW=130, mmH=130, mmX=10, mmY=H-145;
             ctx.save();
-            ctx.fillStyle = 'rgba(0,0,0,0.7)';
-            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.roundRect(mmX, mmY, mmW, mmH, 8);
-            ctx.fill();
-            ctx.stroke();
-
-            const pmx = mmX + (playerObj.x / W) * mmW;
-            const pmy = mmY + (playerObj.y / H) * mmH;
-            ctx.fillStyle = playerObj.invincible ? '#4CAF50' : '#FFD700';
-            ctx.beginPath();
-            ctx.arc(pmx, pmy, 4, 0, Math.PI * 2);
-            ctx.fill();
-
+            ctx.fillStyle='rgba(0,0,0,0.7)'; ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.roundRect(mmX, mmY, mmW, mmH, 8); ctx.fill(); ctx.stroke();
+            
+            const pmx=mmX+(playerObj.x/W)*mmW, pmy=mmY+(playerObj.y/H)*mmH;
+            ctx.fillStyle=playerObj.invincible?'#4CAF50':'#FFD700';
+            ctx.beginPath(); ctx.arc(pmx, pmy, 4, 0, Math.PI*2); ctx.fill();
+            
             policeArr.forEach(cop => {
-                const cmx = mmX + (cop.x / W) * mmW;
-                const cmy = mmY + (cop.y / H) * mmH;
-                ctx.fillStyle = '#ff4444';
-                ctx.beginPath();
-                ctx.arc(cmx, cmy, 3, 0, Math.PI * 2);
-                ctx.fill();
+                if(!cop.active) return;
+                const cmx=mmX+(cop.x/W)*mmW, cmy=mmY+(cop.y/H)*mmH;
+                ctx.fillStyle='#ff4444'; ctx.beginPath(); ctx.arc(cmx, cmy, 3, 0, Math.PI*2); ctx.fill();
             });
-
+            
             items.forEach(item => {
-                if (item.collected) return;
-                const imx = mmX + (item.x / W) * mmW;
-                const imy = mmY + (item.y / H) * mmH;
-                ctx.fillStyle = item.type === 'chicken' ? '#D2691E' : '#4CAF50';
-                ctx.beginPath();
-                ctx.arc(imx, imy, 2, 0, Math.PI * 2);
-                ctx.fill();
+                if(item.collected) return;
+                const imx=mmX+(item.x/W)*mmW, imy=mmY+(item.y/H)*mmH;
+                ctx.fillStyle=item.type==='chicken'?'#D2691E':'#4CAF50';
+                ctx.beginPath(); ctx.arc(imx, imy, 2, 0, Math.PI*2); ctx.fill();
             });
-
-            const wz = window._WIN_ZONE;
-            const wmx = mmX + (wz.x / W) * mmW;
-            const wmy = mmY + (wz.y / H) * mmH;
-            const wmw = (wz.w / W) * mmW;
-            const wmh = (wz.h / H) * mmH;
-            ctx.fillStyle = canEnterWin ? 'rgba(255, 215, 0, 0.4)' : 'rgba(255, 215, 0, 0.1)';
+            
+            const wz=isBossFight?{x:W/2-50,y:H/2-50,w:100,h:100}:winZone;
+            const wmx=mmX+(wz.x/W)*mmW, wmy=mmY+(wz.y/H)*mmH;
+            const wmw=(wz.w/W)*mmW, wmh=(wz.h/H)*mmH;
+            ctx.fillStyle=isBossFight?'rgba(255,68,68,0.4)':(canEnterWin?'rgba(255,215,0,0.4)':'rgba(255,215,0,0.1)');
             ctx.fillRect(wmx, wmy, wmw, wmh);
-
-            ctx.fillStyle = 'rgba(255,255,255,0.5)';
-            ctx.font = '10px Tajawal';
-            ctx.textAlign = 'center';
-            ctx.fillText('🗺️ الخريطة', mmX + mmW/2, mmY - 5);
+            
+            ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='10px Tajawal'; ctx.textAlign='center';
+            ctx.fillText('🗺️', mmX+mmW/2, mmY-5);
             ctx.restore();
         }
 
-        if (!CanvasRenderingContext2D.prototype.roundRect) {
-            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
-                if (typeof r === 'number') r = [r, r, r, r];
-                this.moveTo(x + r[0], y);
-                this.lineTo(x + w - r[1], y);
-                this.quadraticCurveTo(x + w, y, x + w, y + r[1]);
-                this.lineTo(x + w, y + h - r[2]);
-                this.quadraticCurveTo(x + w, y + h, x + w - r[2], y + h);
-                this.lineTo(x + r[3], y + h);
-                this.quadraticCurveTo(x, y + h, x, y + h - r[3]);
-                this.lineTo(x, y + r[0]);
-                this.quadraticCurveTo(x, y, x + r[0], y);
-                this.closePath();
-                return this;
-            };
+        function updateAbilityButtonUI() {
+            const shieldBtn = document.getElementById('shieldBtn');
+            const shieldCD = document.getElementById('shieldCD');
+            if (currentLevel < SHIELD_UNLOCK_LEVEL) {
+                shieldBtn.classList.add('locked');
+            } else if (playerObj.shieldCooldown > 0) {
+                shieldBtn.classList.remove('locked');
+                shieldBtn.classList.add('on-cooldown');
+                shieldCD.style.display = 'flex';
+                shieldCD.textContent = Math.ceil(playerObj.shieldCooldown) + 's';
+            } else {
+                shieldBtn.classList.remove('locked', 'on-cooldown');
+                shieldCD.style.display = 'none';
+            }
+            
+            const speedBtn = document.getElementById('speedBtn');
+            const speedCD = document.getElementById('speedCD');
+            if (currentLevel < SPEED_UNLOCK_LEVEL) {
+                speedBtn.classList.add('locked');
+            } else if (playerObj.speedCooldown > 0) {
+                speedBtn.classList.remove('locked');
+                speedBtn.classList.add('on-cooldown');
+                speedCD.style.display = 'flex';
+                speedCD.textContent = Math.ceil(playerObj.speedCooldown) + 's';
+            } else {
+                speedBtn.classList.remove('locked', 'on-cooldown');
+                speedCD.style.display = 'none';
+            }
+            
+            const absBtn = document.getElementById('absBtn');
+            const absCD = document.getElementById('absCD');
+            if (currentLevel < ABSOLUTE_UNLOCK_LEVEL) {
+                absBtn.classList.add('locked');
+            } else if (playerObj.absoluteCooldown > 0) {
+                absBtn.classList.remove('locked');
+                absBtn.classList.add('on-cooldown');
+                absCD.style.display = 'flex';
+                absCD.textContent = Math.ceil(playerObj.absoluteCooldown) + 's';
+            } else {
+                absBtn.classList.remove('locked', 'on-cooldown');
+                absCD.style.display = 'none';
+            }
         }
-
-        document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
     </script>
 </body>
 </html>
+```
